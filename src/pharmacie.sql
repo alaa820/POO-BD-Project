@@ -1,14 +1,15 @@
 CREATE DATABASE pharmacie_1;
 USE pharmacie_1;
-CREATE TABLE IF NOT EXISTS Role(
-    nom VARCHAR(50) PRIMARY KEY,
-    mot_de_passe_hash VARCHAR(255) NOT NULL
-);
+
 CREATE TABLE IF NOT EXISTS Utilisateur (
     id_utilisateur INT PRIMARY KEY AUTO_INCREMENT,
     adresse VARCHAR(200),
-    nom_role VARCHAR(50),
-    FOREIGN KEY (nom_role) REFERENCES Role(nom)
+    nom VARCHAR(50),
+    prenom VARCHAR(50),
+    password VARCHAR(50),
+    phone VARCHAR(8),
+    role ENUM('admin', 'employee') NOT NULL DEFAULT 'employee'
+    
 );
 CREATE TABLE IF NOT EXISTS Fournisseur (
     id_fournisseur INT PRIMARY KEY AUTO_INCREMENT,

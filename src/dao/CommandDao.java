@@ -1,5 +1,5 @@
 package dao;
 
-public interface CommandDao {
+public class CommandDao {
 
 }

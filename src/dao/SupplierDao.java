@@ -1,5 +1,5 @@
 package dao;
 
-public interface SupplierDao {
+public class SupplierDao {
 
 }

@@ -1,5 +1,5 @@
 package dao;
 
-public interface StockDao {
+public class StockDao {
 
 }

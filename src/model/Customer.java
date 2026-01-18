@@ -26,8 +26,12 @@ public class Customer {
     public int getIdClient() { return idClient; }
     public String getNom() { return nom; }
     public String getPrenom() { return prenom; }
+    public LocalDate getDateNaissance() { return dateNaissance; }
+    public String getSexe() { return sexe; }
     public String getTelephone() { return telephone; }
     public String getEmail() { return email; }
+    public String getAdresse() { return adresse; }
+    public String getDescription() { return description; }
 
     public void setTelephone(String telephone) {
         this.telephone = telephone;

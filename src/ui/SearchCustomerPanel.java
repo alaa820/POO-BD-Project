@@ -38,7 +38,7 @@ public class SearchCustomerPanel extends JPanel {
         // Nom field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        JLabel nomLabel = new JLabel("Nom (optional):");
+        JLabel nomLabel = new JLabel("Nom:");
         nomLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchPanel.add(nomLabel, gbc);
         
@@ -50,7 +50,7 @@ public class SearchCustomerPanel extends JPanel {
         // Prenom field
         gbc.gridx = 2;
         gbc.gridy = 0;
-        JLabel prenomLabel = new JLabel("Prenom (optional):");
+        JLabel prenomLabel = new JLabel("Prenom :");
         prenomLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchPanel.add(prenomLabel, gbc);
         
@@ -62,7 +62,7 @@ public class SearchCustomerPanel extends JPanel {
         // Telephone field
         gbc.gridx = 4;
         gbc.gridy = 0;
-        JLabel telephoneLabel = new JLabel("Telephone (optional):");
+        JLabel telephoneLabel = new JLabel("Telephone :");
         telephoneLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchPanel.add(telephoneLabel, gbc);
         

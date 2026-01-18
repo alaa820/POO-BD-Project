@@ -2,13 +2,13 @@ CREATE DATABASE pharmacie_2;
 USE pharmacie_2;
 
 CREATE TABLE IF NOT EXISTS Utilisateur (
-    id_utilisateur INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) PRIMARY KEY ,
     adresse VARCHAR(200),
     nom VARCHAR(50),
     prenom VARCHAR(50),
-    password VARCHAR(50),
+    mdp VARCHAR(50),
     phone VARCHAR(8),
-    role ENUM('admin', 'employee') NOT NULL DEFAULT 'employee'
+    access ENUM('admin', 'employee') NOT NULL DEFAULT 'employee'
     
 );
 CREATE TABLE IF NOT EXISTS Fournisseur (

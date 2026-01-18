@@ -1,27 +1,29 @@
 package ui;
 
 import javax.swing.*;
+
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
-import dao.EmployeeDao;
-import model.Employee;
+import dao.CustomerDao;
+
+import model.Customer;
 
 /**
- * Panel to display all employees in a table
+ * Panel to display all customers in a table
  */
-public class AllEmployeesPanel extends JPanel {
+public class AllCustomerPanel extends JPanel {
     
     private DefaultTableModel tableModel;
     private JTable table;
-    private EmployeeDao employeeDao;
+    private CustomerDao customerDao;
 
-    public AllEmployeesPanel() {
+    public AllCustomerPanel() {
         super(new BorderLayout());
-        this.employeeDao = new EmployeeDao();
+        this.customerDao = new CustomerDao();
         
         // Create table
-        String[] columnNames = {"Username", "Nom", "Prenom", "Phone", "Adresse", "Access"};
+        String[] columnNames = {"Nom", "Prenom", "Telephone", "Adresse", "Description"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -40,30 +42,28 @@ public class AllEmployeesPanel extends JPanel {
         // Refresh button
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton refreshBtn = new JButton("Refresh");
-        refreshBtn.addActionListener(e -> loadAllEmployees());
+        refreshBtn.addActionListener(e -> loadAllCustomers());
         buttonPanel.add(refreshBtn);
         add(buttonPanel, BorderLayout.NORTH);
         
         // Load data on startup
-        loadAllEmployees();
+        loadAllCustomers();
     }
     
     /**
-     * Load all employees from database and display in table
+     * Load all customers from database and display in table
      */
-    private void loadAllEmployees() {
+    private void loadAllCustomers() {
         tableModel.setRowCount(0);
-        // TODO: Call employeeDao.getAllEmployees()
-        List<Employee> employees = employeeDao.getAllEmployees();
+        List<Customer> customers = customerDao.getAllCustomers();
         
-        for (Employee e : employees) {
+        for (Customer c : customers) {
             tableModel.addRow(new Object[]{
-                e.getUsername(),
-                e.getNom(),
-                e.getPrenom(),
-                e.getPhone(),
-                e.getAdresse(),
-                e.getAccess()
+                c.getNom(),
+                c.getPrenom(),
+                c.getTelephone(),
+                c.getAdresse(),
+                c.getDescription()
             });
         }
     }

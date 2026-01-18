@@ -424,4 +424,3 @@ public class SalePanel extends JPanel {
         updateCartTotal();
     }
 }
-

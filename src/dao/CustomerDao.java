@@ -1,7 +1,7 @@
 package dao;
 
 import model.Customer;
-import util.DatabaseConnection;
+import util.DataBaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,7 +20,7 @@ public class CustomerDao {
     	//list 
 		List<Customer> listC= new ArrayList<>();; // Initialize your list here
     	try {
-    		Connection con  = DatabaseConnection.getConnection();
+    		Connection con  = DataBaseConnection.getConnection();
     		// Sample query execution (pseudo-code)
     		String query = "SELECT * FROM client";
     		PreparedStatement pst = con.prepareStatement(query);
@@ -86,7 +86,7 @@ public class CustomerDao {
     			    params.add("%" + telephone + "%");
     			}
     			
-    		Connection con  = DatabaseConnection.getConnection();
+    		Connection con  = DataBaseConnection.getConnection();
     		PreparedStatement pst = con.prepareStatement(sql.toString());
 
     		for (int i = 0; i < params.size(); i++) {
@@ -129,7 +129,7 @@ public class CustomerDao {
      */
     public boolean addCustomer(String nom, String prenom, LocalDate dateNaissance, String sexe, String telephone, String email, String adresse, String description) {
     	try {
-    		Connection con  = DatabaseConnection.getConnection();
+    		Connection con  = DataBaseConnection.getConnection();
 			// Sample query execution (pseudo-code)
 			String query = "INSERT INTO client (nom, prenom, date_naissance, sexe, telephone, email, adresse, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement pst = con.prepareStatement(query);
@@ -153,4 +153,3 @@ public class CustomerDao {
     	return false;
     }
 }
-

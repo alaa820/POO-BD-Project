@@ -21,7 +21,7 @@ public class CustomerPanel extends JPanel {
         JToolBar toolbar = createToolbar();
         
         // Create sub-panels
-        cardPanel.add(new AllCustomersPanel(), "ALL");
+        cardPanel.add(new AllCustomerPanel(), "ALL");
         cardPanel.add(new SearchCustomerPanel(), "SEARCH");
         cardPanel.add(new AddCustomerPanel(), "ADD");
         

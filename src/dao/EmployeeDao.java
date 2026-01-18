@@ -1,6 +1,6 @@
 package dao;
 
-import util.DataBaseConnection;
+import util.DatabaseConnection;
 import model.Customer;
 import model.Employee;
 import java.sql.Connection;
@@ -23,7 +23,7 @@ public class EmployeeDao {
     	// Replace this with actual database query to validate credentials
         //connection to database and query execution logic goes here
     	try {
-    		Connection con  = DataBaseConnection.getConnection();
+    		Connection con  = DatabaseConnection.getConnection();
     		// Sample query execution (pseudo-code)
     		String query = "SELECT * FROM utilisateur WHERE username = ? AND mdp = ?";
     		PreparedStatement pst = con.prepareStatement(query);
@@ -56,7 +56,7 @@ public class EmployeeDao {
         System.out.println("Fetching all employees");
         List<Employee> employees = new ArrayList<>();
         try {
-    		Connection con  = DataBaseConnection.getConnection();
+    		Connection con  = DatabaseConnection.getConnection();
     		// Sample query execution (pseudo-code)
     		String query = "SELECT * FROM utilisateur";
     		PreparedStatement pst = con.prepareStatement(query);
@@ -121,7 +121,7 @@ public class EmployeeDao {
     			    params.add("%" + username + "%");
     			}
     			
-    		Connection con  = DataBaseConnection.getConnection();
+    		Connection con  = DatabaseConnection.getConnection();
     		PreparedStatement pst = con.prepareStatement(sql.toString());
 
     		for (int i = 0; i < params.size(); i++) {
@@ -165,7 +165,7 @@ public class EmployeeDao {
         // TODO: Query: INSERT INTO employee (username, nom, prenom, adresse, phone, mdp, access) VALUES (?, ?, ?, ?, ?, ?, ?)
         System.out.println("Adding employee: " + nom + " " + prenom + " (username: " + username + ")");
         try {
-    		Connection con  = DataBaseConnection.getConnection();
+    		Connection con  = DatabaseConnection.getConnection();
 			// Sample query execution (pseudo-code)
 			String query = "INSERT INTO utilisateur (username, adresse, nom, prenom, mdp, phone , access) VALUES (?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement pst = con.prepareStatement(query);

@@ -2,7 +2,7 @@ package dao;
 import javax.swing.JOptionPane;
 
 import model.Supplier;
-import util.DataBaseConnection;
+import util.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public class SupplierDao {
         String sql = "INSERT INTO Fournisseur " +
                      "(nom, prenom, societe, email, telephone, adresse, description) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection c = DataBaseConnection.getConnection();
+        try (Connection c = DatabaseConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, s.getNom());
@@ -34,7 +34,7 @@ public class SupplierDao {
     public List<Supplier> getAllSuppliers() {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM Fournisseur";
-        try (Connection c = DataBaseConnection.getConnection();
+        try (Connection c = DatabaseConnection.getConnection();
              Statement st = c.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
 
@@ -63,7 +63,7 @@ public class SupplierDao {
     public List<Supplier> searchSupplierByName(String keyword) {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM Fournisseur WHERE nom LIKE ?";
-        try (Connection c = DataBaseConnection.getConnection();
+        try (Connection c = DatabaseConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, "%" + keyword + "%");

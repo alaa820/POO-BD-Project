@@ -1,6 +1,6 @@
 package main;
 
-import util.DataBaseConnection;
+import util.DatabaseConnection;
 
 public class TestConnection {
 
@@ -8,7 +8,7 @@ public class TestConnection {
 		// TODO Auto-generated method stub
 		System.out.println("Hello, welcome to the Pharmacy Management System!");
 		try {
-			DataBaseConnection.getConnection();
+			DatabaseConnection.getConnection();
 			}catch(Exception e) {
 				e.printStackTrace();
 			}

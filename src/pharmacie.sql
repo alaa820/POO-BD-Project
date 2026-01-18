@@ -1,5 +1,5 @@
-CREATE DATABASE pharmacie_1;
-USE pharmacie_1;
+CREATE DATABASE pharmacie_2;
+USE pharmacie_2;
 
 CREATE TABLE IF NOT EXISTS Utilisateur (
     id_utilisateur INT PRIMARY KEY AUTO_INCREMENT,

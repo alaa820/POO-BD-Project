@@ -22,4 +22,7 @@ public class MedicineDao {
     List<Medicine> getAllMedicines(){
     	return null; // Implementation goes here
     }
+    public boolean isQuantityAvailable(int medicineId, int requiredQuantity) {
+    	return true; // Placeholder implementation
+    }
 }

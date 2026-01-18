@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import dao.CustomerDao;
 import dao.MedicineDao;
-import dao.StockDao;
+
 import model.Customer;
 import model.Medicine;
 import model.SaleItem;
@@ -49,7 +49,7 @@ public class SalePanel extends JPanel {
     
     // DAOs
     private CustomerDao customerDao;
-    private StockDao stockDao;
+    
     private MedicineDao medicineDao;
 
     public SalePanel() {
@@ -58,7 +58,7 @@ public class SalePanel extends JPanel {
         
         this.cartItems = new ArrayList<>();
         this.customerDao = new CustomerDao();
-        this.stockDao = new StockDao();
+        
         this.medicineDao = new MedicineDao();
         
         // Create top panel for inputs

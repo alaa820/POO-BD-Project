@@ -10,7 +10,7 @@ module GestionPharmacie {
     requires java.desktop;  
     exports model;
     exports dao;
-    exports service;
+    
     exports ui;
     exports util;
 }

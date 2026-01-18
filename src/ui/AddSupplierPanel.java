@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import model.Supplier;
-import service.SupplierService;
+import dao.SupplierDao;
 
 /**
  * Panel to add a new supplier
@@ -13,11 +13,11 @@ public class AddSupplierPanel extends JPanel {
 
     private JTextField nomField, prenomField, societeField, emailField, telField, adresseField;
     private JTextArea descriptionArea;
-    private SupplierService service;
+    private SupplierDao supplierDao;
 
     public AddSupplierPanel() {
         super(new BorderLayout());
-        service = new SupplierService();
+        supplierDao = new SupplierDao();
 
         JPanel formPanel = createFormPanel();
         JScrollPane scrollPane = new JScrollPane(formPanel);
@@ -108,7 +108,7 @@ public class AddSupplierPanel extends JPanel {
                 descriptionArea.getText()
         );
         try {
-            service.ajouterFournisseur(s);
+            supplierDao.addSupplier(s);
             JOptionPane.showMessageDialog(this, "Fournisseur ajouté avec succès !");
             clearForm();
         } catch (SQLException e) {

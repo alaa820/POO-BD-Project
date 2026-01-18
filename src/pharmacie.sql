@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS Client (
     nom VARCHAR(50),
     prenom VARCHAR(50),
     date_naissance DATE,
-    sexe VARCHAR(10),
+    sexe ENUM('M', 'F') NOT NULL,
     telephone VARCHAR(20),
     email VARCHAR(100),
     adresse VARCHAR(100),
@@ -61,9 +61,9 @@ CREATE TABLE IF NOT EXISTS Vente (
     date_vente DATE,
     prix DECIMAL(10,2),
     id_client INT,
-    id_utilisateur INT,
+    username_name VARCHAR(50),
     FOREIGN KEY (id_client) REFERENCES Client(id_client),
-    FOREIGN KEY (id_utilisateur) REFERENCES Utilisateur(id_utilisateur)
+    FOREIGN KEY (username_name) REFERENCES Utilisateur(username)
 );
 CREATE TABLE IF NOT EXISTS CommandeProduit (
     id_commande INT,

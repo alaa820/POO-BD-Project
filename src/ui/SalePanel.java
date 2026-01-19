@@ -304,6 +304,10 @@ public class SalePanel extends JPanel {
         boolean alreadyInCart = false;
         for (SaleItem item : cartItems) {
 			if (item.getMedicine().getCodeBarre().equals(selectedMedicine.getCodeBarre())) {
+				if(item.getQuantity() + quantity > selectedMedicine.getQuantite()) {
+					JOptionPane.showMessageDialog(this, "Insufficient stock to add more of this medicine", "Error", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 				item.setQuantity(item.getQuantity() + quantity);
 				System.out.println("Updated quantity for " + item.getMedicine().getNom() + " to " + item.getQuantity());
 				alreadyInCart = true;
@@ -327,7 +331,6 @@ public class SalePanel extends JPanel {
 				else {
 					SaleItem item = new SaleItem(
 			                selectedMedicine,
-			                selectedCustomer,
 			                quantity
 			        );
 					cartItems.add(item);

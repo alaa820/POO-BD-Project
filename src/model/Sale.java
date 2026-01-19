@@ -12,17 +12,17 @@ public class Sale {
     private Employee employee; // references the employee who handled the sale
 
     // Constructor with all fields
-    public Sale(int idVente, LocalDateTime dateVente, double prix, Customer client, Employee employee) {
-        this.idVente = idVente;
-        this.dateVente = dateVente;
-        this.prix = prix;
-        this.client = client;
-        this.employee = employee;
-    }
-
+    
     // Empty constructor
     public Sale() {}
 
+    public Sale(int idVente,LocalDateTime dateVente, double prix, Customer client, Employee employee) {
+    	this.idVente = idVente;
+		this.dateVente = dateVente;
+		this.prix = prix;
+		this.client = client;
+		this.employee = employee;
+	}
     // Getters and setters
     public int getIdVente() {
         return idVente;

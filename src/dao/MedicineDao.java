@@ -214,4 +214,23 @@ public class MedicineDao {
     public boolean isQuantityAvailable(int medicineId, int requiredQuantity) {
         return false;
     }
+    
+    
+    public boolean deleteByCodeBarre(String codebarre) {
+    	try {
+    		Connection con  = DatabaseConnection.getConnection();
+    					// Sample query execution (pseudo-code)
+    		String query = "DELETE FROM medicament WHERE code_barre = ?";
+    		PreparedStatement pst = con.prepareStatement(query);
+    		pst.setString(1, codebarre);
+    		int rowsAffected =  pst.executeUpdate();
+    		return rowsAffected > 0;
+    		
+    	}catch(Exception e) {
+    					e.printStackTrace();
+    	}
+    	return false;
+    }
+    
+    
 }

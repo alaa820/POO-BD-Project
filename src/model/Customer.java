@@ -13,8 +13,9 @@ public class Customer {
     private String email;
     private String adresse;
     private String description;
-    public Customer(String nom, String prenom, LocalDate dateNaissance, String sexe,String telephone, String email, String adresse, String description) {
-        this.nom = nom;
+    public Customer(int id, String nom, String prenom, LocalDate dateNaissance, String sexe,String telephone, String email, String adresse, String description) {
+        this.idClient = id;
+    	this.nom = nom;
         this.prenom = prenom;
         this.dateNaissance = dateNaissance;
         this.sexe = sexe;

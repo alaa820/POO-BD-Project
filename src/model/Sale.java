@@ -1,5 +1,77 @@
 package model;
 
+import java.time.LocalDateTime;
+
 public class Sale {
 
+    private int idVente;
+    private LocalDateTime dateVente;
+    private double prix;
+
+    private Customer client;      // references the customer who made the purchase
+    private Employee employee; // references the employee who handled the sale
+
+    // Constructor with all fields
+    public Sale(int idVente, LocalDateTime dateVente, double prix, Customer client, Employee employee) {
+        this.idVente = idVente;
+        this.dateVente = dateVente;
+        this.prix = prix;
+        this.client = client;
+        this.employee = employee;
+    }
+
+    // Empty constructor
+    public Sale() {}
+
+    // Getters and setters
+    public int getIdVente() {
+        return idVente;
+    }
+
+    public void setIdVente(int idVente) {
+        this.idVente = idVente;
+    }
+
+    public LocalDateTime getDateVente() {
+        return dateVente;
+    }
+
+    public void setDateVente(LocalDateTime dateVente) {
+        this.dateVente = dateVente;
+    }
+
+    public double getPrix() {
+        return prix;
+    }
+
+    public void setPrix(double prix) {
+        this.prix = prix;
+    }
+
+    public Customer getClient() {
+        return client;
+    }
+
+    public void setClient(Customer client) {
+        this.client = client;
+    }
+
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    @Override
+    public String toString() {
+        return "Sale{" +
+                "idVente=" + idVente +
+                ", dateVente=" + dateVente +
+                ", prix=" + prix +
+                ", client=" + (client != null ? client.getNom() + " " + client.getPrenom() : "null") +
+                ", employee=" + (employee != null ? employee.getUsername() : "null") +
+                '}';
+    }
 }

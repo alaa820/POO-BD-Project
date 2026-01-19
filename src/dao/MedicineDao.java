@@ -18,6 +18,56 @@ public class MedicineDao {
      * Get all medicines
      * @return List of all medicines
      */
+	public Medicine getMedecineByCode(String codeBarre) {
+		try {
+			Connection con  = DatabaseConnection.getConnection();
+			// Sample query execution (pseudo-code)
+			String query = "SELECT * FROM medicament WHERE code_barre = ?";
+			PreparedStatement pst = con.prepareStatement(query);
+			pst.setString(1, codeBarre);
+			ResultSet rs = pst.executeQuery();
+			if(rs.next()) {
+				// Extract medicine details from ResultSet and create Medicine object
+				// Similar to getAllMedicines method
+				String code_barre = rs.getString("code_barre");
+				String nomMed = rs.getString("nom");
+				double prixAchat = rs.getDouble("prix_achat");
+				double prixVente = rs.getDouble("prix_vente");
+				double tauxTVA = rs.getDouble("taux_TVA");
+				String dosage = rs.getString("dosage");
+				int quantite = rs.getInt("quantite");
+				int seuil = rs.getInt("seuil");
+				String formePharmaceutique = rs.getString("forme_pharmaceutique");
+				String emplacement = rs.getString("emplacement");
+				boolean necessitePrescription = rs.getBoolean("necessite_prescription");
+				String querySupplier = "SELECT * FROM fournisseur WHERE id_fournisseur = ?";
+				PreparedStatement pstSupplier = con.prepareStatement(querySupplier);
+				pstSupplier.setInt(1, rs.getInt("id_fournisseur"));
+				ResultSet rsSupplier = pstSupplier.executeQuery();
+				Supplier supp = null;
+				if(rsSupplier.next()) {
+					supp = new Supplier(
+							rsSupplier.getString("nom"),
+							rsSupplier.getString("prenom"),
+							rsSupplier.getString("societe"),
+							rsSupplier.getString("email"),
+							rsSupplier.getString("telephone"),
+							rsSupplier.getString("adresse"),
+							rsSupplier.getString("description")
+					);
+					supp.setIdFournisseur(rsSupplier.getInt("id_fournisseur"));
+					Medicine medicine = new Medicine(code_barre, nomMed, prixAchat, prixVente, tauxTVA, dosage, quantite, seuil, formePharmaceutique, emplacement, necessitePrescription, supp);
+					return medicine;}
+				
+				
+			}
+			}catch(Exception e) {
+							e.printStackTrace();
+			}
+			return null;
+				
+	}
+	
     public List<Medicine> getAllMedicines() {
     	List<Medicine> medecines= new ArrayList<>();; // Initialize your list here
     	try {
@@ -232,5 +282,19 @@ public class MedicineDao {
     	return false;
     }
     
+    public void updateMedicineQuantity(String codeBarre, int newQuantity) {
+		try {
+			Connection con  = DatabaseConnection.getConnection();
+						// Sample query execution (pseudo-code)
+			String query = "UPDATE medicament SET quantite = ? WHERE code_barre = ?";
+			PreparedStatement pst = con.prepareStatement(query);
+			pst.setInt(1, newQuantity);
+			pst.setString(2, codeBarre);
+			pst.executeUpdate();
+			
+		}catch(Exception e) {
+						e.printStackTrace();
+		}
+    }
     
 }

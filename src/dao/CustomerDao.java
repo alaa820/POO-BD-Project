@@ -42,7 +42,7 @@ public class CustomerDao {
 				String description = rs.getString("description");
 				
 				// Create Customer object and add to list (pseudo-code)
-				Customer customer = new Customer(nom, prenom, dateNaissance, sexe, telephone, email, adresse, description);
+				Customer customer = new Customer(idClient, nom, prenom, dateNaissance, sexe, telephone, email, adresse, description);
 				listC.add(customer);
 				// Customer customer = new Customer(...);
 				// customers.add(customer);
@@ -54,6 +54,36 @@ public class CustomerDao {
     	return listC;
     }
     
+    public Customer getCustomerById(int idClient) {
+		Customer customer = null;
+		try {
+			Connection con  = DatabaseConnection.getConnection();
+			// Sample query execution (pseudo-code)
+			String query = "SELECT * FROM client WHERE id_client = ?";
+			PreparedStatement pst = con.prepareStatement(query);
+			pst.setInt(1, idClient);
+
+			ResultSet rs = pst.executeQuery();
+			
+			
+			if(rs.next()) {
+				int id = rs.getInt("id_client");
+				String nom = rs.getString("nom");
+				String prenom = rs.getString("prenom");	
+				LocalDate dateNaissance = rs.getDate("date_naissance").toLocalDate();
+				String sexe = rs.getString("sexe");
+				String telephone = rs.getString("telephone");
+				String email = rs.getString("email");
+				String adresse = rs.getString("adresse");
+				String description = rs.getString("description");
+				customer = new Customer(id, nom, prenom, dateNaissance, sexe, telephone, email, adresse, description);
+				return customer;
+			}
+		}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
     /**
      * Search customers by name, prenom, and/or telephone
      * Any parameter can be null - only non-null parameters are used in the search
@@ -106,7 +136,7 @@ public class CustomerDao {
 				String email = rs.getString("email");
 				String adresse = rs.getString("adresse");
 				String description = rs.getString("description");
-				Customer customer = new Customer(nomC, prenomC, dateNaissance, sexe, telephoneC, email, adresse, description);
+				Customer customer = new Customer(idClient , nomC, prenomC, dateNaissance, sexe, telephoneC, email, adresse, description);
 				listC.add(customer);
     		}
     }

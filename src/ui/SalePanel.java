@@ -1,426 +1,415 @@
 package ui;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+
 import dao.CustomerDao;
 import dao.MedicineDao;
-
 import model.Customer;
 import model.Medicine;
 import model.SaleItem;
 
+import dao.SaleItemDao;
+import dao.SaleDao;
 
-/**
- * Sale Panel for processing customer purchases
- * Features:
- * 1. Search and select customer by name
- * 2. Search and select medicine by name
- * 3. Enter quantity
- * 4. Add items to shopping cart
- * 5. View cart and checkout
- */
 public class SalePanel extends JPanel {
-    
-    // Customer selection
+
+    // Customer
     private JTextField customerField;
-    private JComboBox<Customer> customerCombo;
+    private JList<String> customerSuggestionList;
+    private DefaultListModel<String> customerSuggestionModel;
     private Customer selectedCustomer;
-    
-    // Medicine selection
+
+    // Medicine
     private JTextField medicineField;
-    private JComboBox<Medicine> medicineCombo;
+    private JList<String> medicineSuggestionList;
+    private DefaultListModel<String> medicineSuggestionModel;
     private Medicine selectedMedicine;
     private JLabel medicineIdLabel;
-    
-    // Quantity
+
+    // Quantity & Cart
     private JSpinner quantitySpinner;
-    
-    // Cart
     private DefaultTableModel cartTableModel;
     private JTable cartTable;
     private JLabel totalLabel;
     private List<SaleItem> cartItems;
-    
+    private SaleItemDao saleItemDao;
+    private SaleDao saleDao;
+
     // DAOs
     private CustomerDao customerDao;
-    
     private MedicineDao medicineDao;
 
     public SalePanel() {
         super(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        this.cartItems = new ArrayList<>();
-        this.customerDao = new CustomerDao();
-        
-        this.medicineDao = new MedicineDao();
-        
-        // Create top panel for inputs
+
+        cartItems = new ArrayList<>();
+        customerDao = new CustomerDao();
+        medicineDao = new MedicineDao();
+
         JPanel inputPanel = createInputPanel();
-        
-        // Create bottom panel for cart
         JPanel cartPanel = createCartPanel();
-        
+
         add(inputPanel, BorderLayout.NORTH);
         add(cartPanel, BorderLayout.CENTER);
     }
-    
-    /**
-     * Creates the input panel for customer, medicine, and quantity selection
-     */
+
     private JPanel createInputPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(245, 245, 245));
         panel.setBorder(BorderFactory.createTitledBorder("Sale Information"));
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        
+
         int row = 0;
-        
-        // === CUSTOMER SELECTION ===
+        row = addCustomerSuggestionField(panel, gbc, row);
+        row = addMedicineSuggestionField(panel, gbc, row);
+
+        // Quantity and Add to Cart
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        JLabel quantityLabel = new JLabel("Quantity:");
+        quantityLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        panel.add(quantityLabel, gbc);
+
+        gbc.gridx = 1;
+        quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
+        panel.add(quantitySpinner, gbc);
+
+        gbc.gridx = 2;
+        JButton addToCartBtn = new JButton("Add to Cart");
+        addToCartBtn.addActionListener(e -> handleAddToCart());
+        panel.add(addToCartBtn, gbc);
+
+        return panel;
+    }
+
+    private int addCustomerSuggestionField(JPanel panel, GridBagConstraints gbc, int row) {
         gbc.gridx = 0;
         gbc.gridy = row;
         gbc.gridwidth = 1;
-        JLabel customerLabel = new JLabel("Select Customer:");
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel customerLabel = new JLabel("Customer:");
         customerLabel.setFont(new Font("Arial", Font.BOLD, 12));
         panel.add(customerLabel, gbc);
-        
+
         gbc.gridx = 1;
-        customerField = new JTextField(15);
+        gbc.gridy = row++;
+        customerField = new JTextField(20);
         customerField.setFont(new Font("Arial", Font.PLAIN, 11));
-        customerField.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { filterCustomers(); }
-            public void removeUpdate(DocumentEvent e) { filterCustomers(); }
-            public void changedUpdate(DocumentEvent e) { filterCustomers(); }
-        });
         panel.add(customerField, gbc);
-        
-        gbc.gridx = 2;
-        customerCombo = new JComboBox<>();
-        customerCombo.setFont(new Font("Arial", Font.PLAIN, 11));
-        customerCombo.addActionListener(e -> {
-            selectedCustomer = (Customer) customerCombo.getSelectedItem();
-            if (selectedCustomer != null) {
-                customerField.setText(selectedCustomer.getNom() + " " + selectedCustomer.getPrenom());
+
+        customerSuggestionModel = new DefaultListModel<>();
+        customerSuggestionList = new JList<>(customerSuggestionModel);
+        customerSuggestionList.setFont(new Font("Arial", Font.PLAIN, 10));
+        customerSuggestionList.setVisibleRowCount(4);
+        customerSuggestionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JScrollPane suggestionScroll = new JScrollPane(customerSuggestionList);
+        suggestionScroll.setPreferredSize(new Dimension(250, 80));
+
+        gbc.gridx = 1;
+        gbc.gridy = row++;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 0.1;
+        panel.add(suggestionScroll, gbc);
+        gbc.weighty = 0;
+
+        // Document listener
+        customerField.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { updateSuggestions(); }
+            public void removeUpdate(DocumentEvent e) { updateSuggestions(); }
+            public void changedUpdate(DocumentEvent e) { updateSuggestions(); }
+
+            private void updateSuggestions() {
+                String text = customerField.getText().trim();
+                customerSuggestionModel.clear();
+                if (!text.isEmpty()) {
+                    List<Customer> list = customerDao.searchCustomers(text, null, null);
+                    for (Customer c : list) {
+                        customerSuggestionModel.addElement(c.getIdClient() +" " + c.getNom() + " " + c.getPrenom());
+                    }
+                    suggestionScroll.setVisible(!customerSuggestionModel.isEmpty());
+                } else {
+                    suggestionScroll.setVisible(false);
+                    selectedCustomer = null;
+                }
+                panel.revalidate();
+                panel.repaint();
             }
         });
-        panel.add(customerCombo, gbc);
-        
-        row++;
-        
-        // === MEDICINE SELECTION ===
+
+        customerSuggestionList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selected = customerSuggestionList.getSelectedValue();
+                if (selected != null) {
+                    customerField.setText(selected);
+                    int id = Integer.parseInt(selected.split(" ")[0]);
+                    Customer c = customerDao.getCustomerById(id);
+                    if (c != null) {
+						selectedCustomer = c;
+					}
+                    suggestionScroll.setVisible(false);
+                    panel.revalidate();
+                }
+            }
+        });
+
+        suggestionScroll.setVisible(false);
+        return row;
+    }
+
+    private int addMedicineSuggestionField(JPanel panel, GridBagConstraints gbc, int row) {
         gbc.gridx = 0;
         gbc.gridy = row;
         gbc.gridwidth = 1;
-        JLabel medicineLabel = new JLabel("Select Medicine:");
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel medicineLabel = new JLabel("Medicine:");
         medicineLabel.setFont(new Font("Arial", Font.BOLD, 12));
         panel.add(medicineLabel, gbc);
-        
+
         gbc.gridx = 1;
-        medicineField = new JTextField(15);
+        gbc.gridy = row++;
+        medicineField = new JTextField(20);
         medicineField.setFont(new Font("Arial", Font.PLAIN, 11));
-        medicineField.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { filterMedicines(); }
-            public void removeUpdate(DocumentEvent e) { filterMedicines(); }
-            public void changedUpdate(DocumentEvent e) { filterMedicines(); }
-        });
         panel.add(medicineField, gbc);
-        
+
+        medicineSuggestionModel = new DefaultListModel<>();
+        medicineSuggestionList = new JList<>(medicineSuggestionModel);
+        medicineSuggestionList.setFont(new Font("Arial", Font.PLAIN, 10));
+        medicineSuggestionList.setVisibleRowCount(4);
+        medicineSuggestionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JScrollPane suggestionScroll = new JScrollPane(medicineSuggestionList);
+        suggestionScroll.setPreferredSize(new Dimension(250, 80));
+
+        gbc.gridx = 1;
+        gbc.gridy = row++;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weighty = 0.1;
+        panel.add(suggestionScroll, gbc);
+        gbc.weighty = 0;
+
         gbc.gridx = 2;
-        medicineCombo = new JComboBox<>();
-        medicineCombo.setFont(new Font("Arial", Font.PLAIN, 11));
-        medicineCombo.addActionListener(e -> {
-            selectedMedicine = (Medicine) medicineCombo.getSelectedItem();
-            if (selectedMedicine != null) {
-                medicineField.setText(selectedMedicine.getNom());
-                medicineIdLabel.setText("ID: " + selectedMedicine.getIdMedicine());
-            }
-        });
-        panel.add(medicineCombo, gbc);
-        
-        gbc.gridx = 3;
+        gbc.gridy = row - 1;
         medicineIdLabel = new JLabel("ID: -");
         medicineIdLabel.setFont(new Font("Arial", Font.BOLD, 11));
         medicineIdLabel.setForeground(new Color(0, 100, 200));
         panel.add(medicineIdLabel, gbc);
-        
-        row++;
-        
-        // === QUANTITY ===
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.gridwidth = 1;
-        JLabel quantityLabel = new JLabel("Quantity:");
-        quantityLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        panel.add(quantityLabel, gbc);
-        
-        gbc.gridx = 1;
-        quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
-        quantitySpinner.setFont(new Font("Arial", Font.PLAIN, 11));
-        panel.add(quantitySpinner, gbc);
-        
-        // === ADD TO CART BUTTON ===
-        gbc.gridx = 2;
-        gbc.gridy = row;
-        JButton addToCartBtn = new JButton("Add to Cart");
-        addToCartBtn.setFont(new Font("Arial", Font.BOLD, 12));
-        addToCartBtn.setPreferredSize(new Dimension(120, 35));
-        addToCartBtn.addActionListener(e -> handleAddToCart());
-        panel.add(addToCartBtn, gbc);
-        
-        return panel;
+
+        // Document listener
+        medicineField.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { updateSuggestions(); }
+            public void removeUpdate(DocumentEvent e) { updateSuggestions(); }
+            public void changedUpdate(DocumentEvent e) { updateSuggestions(); }
+
+            private void updateSuggestions() {
+                String text = medicineField.getText().trim();
+                medicineSuggestionModel.clear();
+                if (!text.isEmpty()) {
+                    List<Medicine> list = medicineDao.searchMedicines("", text, "");
+                    System.out.println("Found " + list.size() + " medicines for query: " + text);
+                    for (Medicine m : list) {
+                        medicineSuggestionModel.addElement(m.getCodeBarre()+" "+m.getNom() + " - " + m.getSupplier().getSociete());
+                    }
+                    suggestionScroll.setVisible(!medicineSuggestionModel.isEmpty());
+                } else {
+                    suggestionScroll.setVisible(false);
+                    selectedMedicine = null;
+                    medicineIdLabel.setText("ID: -");
+                }
+                panel.revalidate();
+                panel.repaint();
+            }
+        });
+
+        medicineSuggestionList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String selected = medicineSuggestionList.getSelectedValue();
+                if (selected != null) {
+                    medicineField.setText(selected);
+                    
+                    Medicine m = medicineDao.getMedecineByCode(selected.split(" ")[0]);
+                    if (m != null) {
+                    	selectedMedicine = m;
+                    }
+                    suggestionScroll.setVisible(false);
+                    panel.revalidate();
+                }
+            }
+        });
+
+        suggestionScroll.setVisible(false);
+        return row;
     }
-    
-    /**
-     * Creates the cart panel showing selected items and checkout
-     */
+
     private JPanel createCartPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createTitledBorder("Shopping Cart"));
-        
-        // Cart table
-        String[] columnNames = {"Medicine", "Quantity", "Unit Price", "Total"};
-        cartTableModel = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
+
+        String[] columns = {"Medicine", "Quantity", "Unit Price", "Total"};
+        cartTableModel = new DefaultTableModel(columns, 0) {
+            public boolean isCellEditable(int row, int col) { return false; }
         };
+        //list of saleitem
         
+        
+
         cartTable = new JTable(cartTableModel);
-        cartTable.setFont(new Font("Arial", Font.PLAIN, 11));
-        cartTable.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
-        cartTable.setRowHeight(25);
-        
-        JScrollPane scrollPane = new JScrollPane(cartTable);
-        panel.add(scrollPane, BorderLayout.CENTER);
-        
-        // Bottom panel with total and buttons
-        JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
-        
-        // Total and summary
-        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
+        panel.add(new JScrollPane(cartTable), BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
         totalLabel = new JLabel("Total: 0.00 DZD");
-        totalLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        totalLabel.setForeground(new Color(0, 100, 0));
-        totalPanel.add(totalLabel);
-        
-        // Buttons
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        
-        JButton removeBtn = new JButton("Remove Selected");
-        removeBtn.setFont(new Font("Arial", Font.BOLD, 11));
-        removeBtn.addActionListener(e -> handleRemoveFromCart());
-        
-        JButton clearBtn = new JButton("Clear Cart");
-        clearBtn.setFont(new Font("Arial", Font.BOLD, 11));
-        clearBtn.addActionListener(e -> handleClearCart());
-        
-        JButton checkoutBtn = new JButton("Checkout");
-        checkoutBtn.setFont(new Font("Arial", Font.BOLD, 12));
-        checkoutBtn.setBackground(new Color(0, 150, 0));
-        checkoutBtn.setForeground(Color.WHITE);
-        checkoutBtn.setPreferredSize(new Dimension(100, 35));
-        checkoutBtn.addActionListener(e -> handleCheckout());
-        
-        buttonsPanel.add(removeBtn);
-        buttonsPanel.add(clearBtn);
-        buttonsPanel.add(checkoutBtn);
-        
-        bottomPanel.add(totalPanel, BorderLayout.WEST);
-        bottomPanel.add(buttonsPanel, BorderLayout.EAST);
-        
+        bottomPanel.add(totalLabel, BorderLayout.WEST);
+
+        JPanel btnPanel = new JPanel();
+        JButton checkout = new JButton("Checkout");
+        checkout.addActionListener(e -> handleCheckout());
+        btnPanel.add(checkout);
+        bottomPanel.add(btnPanel, BorderLayout.EAST);
+
         panel.add(bottomPanel, BorderLayout.SOUTH);
-        
         return panel;
     }
-    
-    /**
-     * Filter customers based on text input
-     */
-    private void filterCustomers() {
-        String searchText = customerField.getText().trim().toLowerCase();
-        customerCombo.removeAllItems();
-        
-        if (searchText.isEmpty()) {
-            return;
-        }
-        
-        // TODO: Call customerDao.searchCustomers(nom, prenom, telephone) 
-        // List<Customer> customers = customerDao.searchCustomers(searchText, null, null);
-        // for (Customer c : customers) {
-        //     customerCombo.addItem(c);
-        // }
-    }
-    
-    /**
-     * Filter medicines based on text input
-     */
-    private void filterMedicines() {
-        String searchText = medicineField.getText().trim().toLowerCase();
-        medicineCombo.removeAllItems();
-        
-        if (searchText.isEmpty()) {
-            return;
-        }
-        
-        // TODO: Call medicineDao.searchByName(searchText) to get matching medicines
-        // List<Medicine> medicines = medicineDao.searchByName(searchText);
-        // for (Medicine m : medicines) {
-        //     medicineCombo.addItem(m);
-        // }
-    }
-    
-    /**
-     * Handle adding item to cart
-     */
+
     private void handleAddToCart() {
         if (selectedCustomer == null) {
             JOptionPane.showMessageDialog(this, "Please select a customer", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
         if (selectedMedicine == null) {
             JOptionPane.showMessageDialog(this, "Please select a medicine", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         int quantity = (Integer) quantitySpinner.getValue();
         if (quantity <= 0) {
             JOptionPane.showMessageDialog(this, "Quantity must be greater than 0", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        if(quantity > selectedMedicine.getQuantite()) {
+			JOptionPane.showMessageDialog(this, "Insufficient stock for the selected medicine", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+        boolean alreadyInCart = false;
+        for (SaleItem item : cartItems) {
+			if (item.getMedicine().getCodeBarre().equals(selectedMedicine.getCodeBarre())) {
+				item.setQuantity(item.getQuantity() + quantity);
+				System.out.println("Updated quantity for " + item.getMedicine().getNom() + " to " + item.getQuantity());
+				alreadyInCart = true;
+				break;
+			}
+		}       
+
         
-        // TODO: Uncomment the line below to check stock availability
-        // boolean isAvailable = stockDao.isQuantityAvailable(selectedMedicine.getIdMedicine(), quantity);
-        // if (!isAvailable) {
-        //     JOptionPane.showMessageDialog(this, "Insufficient quantity in stock", "Error", JOptionPane.ERROR_MESSAGE);
-        //     return;
-        // }
+
         
-        // Create sale item
-        SaleItem item = new SaleItem(
-            selectedMedicine.getIdMedicine(),
-            selectedMedicine.getNom(),
-            quantity,
-            selectedMedicine.getPrixVente()
-        );
-        
-        // Add to cart
-        cartItems.add(item);
+        if(alreadyInCart) {
+			//refresh cart
+			cartTableModel.setRowCount(0);
+			for (SaleItem it : cartItems) {
+				cartTableModel.addRow(new Object[]{
+						it.getMedicine().getNom(),
+						it.getQuantity(),
+						String.format("%.2f", it.getMedicine().getPrixVente()),
+						String.format("%.2f", it.getMedicine().getPrixVente() * it.getQuantity())
+				});}}
+				else {
+					SaleItem item = new SaleItem(
+			                selectedMedicine,
+			                selectedCustomer,
+			                quantity
+			        );
+					cartItems.add(item);
         cartTableModel.addRow(new Object[]{
-            item.getMedicineName(),
-            item.getQuantity(),
-            String.format("%.2f", item.getUnitPrice()),
-            String.format("%.2f", item.getTotalPrice())
-        });
+                item.getMedicine().getNom(),
+                item.getQuantity(),
+                String.format("%.2f", item.getMedicine().getPrixVente()),
+                String.format("%.2f", item.getMedicine().getPrixVente() * item.getQuantity())
         
-        // Update total
+        });}
+        
         updateCartTotal();
-        
-        // Reset fields
+
+        // Reset medicine field
         medicineField.setText("");
         medicineIdLabel.setText("ID: -");
         selectedMedicine = null;
         quantitySpinner.setValue(1);
-        medicineCombo.removeAllItems();
-        
-        JOptionPane.showMessageDialog(this, "Item added to cart", "Success", JOptionPane.INFORMATION_MESSAGE);
+        medicineSuggestionModel.clear();
     }
-    
-    /**
-     * Handle removing item from cart
-     */
-    private void handleRemoveFromCart() {
-        int selectedRow = cartTable.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select an item to remove", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        cartItems.remove(selectedRow);
-        cartTableModel.removeRow(selectedRow);
-        updateCartTotal();
-    }
-    
-    /**
-     * Handle clearing entire cart
-     */
-    private void handleClearCart() {
-        if (cartItems.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Cart is already empty", "Info", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        int confirm = JOptionPane.showConfirmDialog(this, "Clear entire cart?", "Confirm", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            cartItems.clear();
-            cartTableModel.setRowCount(0);
-            updateCartTotal();
-        }
-    }
-    
-    /**
-     * Handle checkout
-     */
+
     private void handleCheckout() {
         if (selectedCustomer == null) {
             JOptionPane.showMessageDialog(this, "Please select a customer", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
         if (cartItems.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Cart is empty", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        double total = 0;
+        for (SaleItem item : cartItems) {
+			total += item.getQuantity() * item.getMedicine().getPrixVente();
+			// Update medicine stock
+			Medicine m = item.getMedicine();
+			m.setQuantite(m.getQuantite() - item.getQuantity());
+			medicineDao.updateMedicineQuantity(m.getCodeBarre(), m.getQuantite());
+		}
+        //create sale and saleitem update them in database let's call dao
+        saleDao = new SaleDao();
+        int id = saleDao.addSale(total, selectedCustomer);
         
-        // TODO: Call saleDao.createSale(customer, cartItems) to save the sale
-        // TODO: Update stock by calling stockDao.reduceQuantity(medicineId, quantity) for each item
+        for (SaleItem item : cartItems) {
+        				// Here you would typically call a SaleDao to save the sale and sale items
+        	saleItemDao = new SaleItemDao();
+        	saleItemDao.saveSaleItem(id, item);
+        }
         
-        // For now, show success message
-        double total = cartItems.stream().mapToDouble(SaleItem::getTotalPrice).sum();
-        JOptionPane.showMessageDialog(this, 
-            "Sale completed successfully!\n\n" +
-            "Customer: " + selectedCustomer.getNom() + " " + selectedCustomer.getPrenom() + "\n" +
-            "Total Amount: " + String.format("%.2f", total) + " DZD\n" +
-            "Items: " + cartItems.size(),
-            "Checkout Success", JOptionPane.INFORMATION_MESSAGE);
-        
-        // Reset for next sale
+        JOptionPane.showMessageDialog(this,
+                "Sale completed successfully!\n\n" +
+                        "Customer: " + selectedCustomer.getNom() + " " + selectedCustomer.getPrenom() + "\n" +
+                        "Total Amount: " + String.format("%.2f", total) + " DZD\n" +
+                        "Items: " + cartItems.size(),
+                "Checkout Success", JOptionPane.INFORMATION_MESSAGE);
+
+        // Reset
         resetSalePanel();
     }
-    
-    /**
-     * Update cart total
-     */
+
     private void updateCartTotal() {
-        double total = cartItems.stream().mapToDouble(SaleItem::getTotalPrice).sum();
+        double total = 0.0;
+        for (SaleItem item : cartItems) {
+			total += item.getQuantity() * item.getMedicine().getPrixVente();
+		}
         totalLabel.setText("Total: " + String.format("%.2f", total) + " DZD");
     }
-    
-    /**
-     * Reset the entire sale panel
-     */
+
     private void resetSalePanel() {
         customerField.setText("");
-        customerCombo.removeAllItems();
         selectedCustomer = null;
+        customerSuggestionModel.clear();
+
         medicineField.setText("");
-        medicineCombo.removeAllItems();
-        medicineIdLabel.setText("ID: -");
         selectedMedicine = null;
+        medicineIdLabel.setText("ID: -");
+        medicineSuggestionModel.clear();
+
         quantitySpinner.setValue(1);
         cartItems.clear();
         cartTableModel.setRowCount(0);
         updateCartTotal();
+        cartItems = null;
     }
 }

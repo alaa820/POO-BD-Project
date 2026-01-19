@@ -35,6 +35,8 @@ public class Employee {
     public void setMdp(String mdp) { this.mdp = mdp; }
     public void setAccess(String access) { this.access = access; }
     
+    
+    
     @Override
     public String toString() {
         return nom + " " + prenom + " (" + username + ")";

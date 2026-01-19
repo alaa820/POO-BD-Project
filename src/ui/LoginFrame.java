@@ -6,7 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import dao.EmployeeDao;
 import dao.EmployeeDao;
-
+import util.Session;
+import model.Employee;
 /**
  * Login frame for the Pharmacy Management System.
  * Handles user authentication and navigation to the main application.
@@ -154,6 +155,11 @@ public class LoginFrame extends JFrame {
         EmployeeDao employeeDao = new EmployeeDao();
         if (employeeDao.authenticateUser(username, password)) {
             // Login successful - open HomeFrame and close LoginFrame
+        	Employee emp = employeeDao.getEmployeeByUsername(username);
+        	
+        	System.out.println("Logged in user: " + emp);
+        	Session.setCurrentUser(emp);
+        	
             SwingUtilities.invokeLater(() -> {
                 HomeFrame homeFrame = new HomeFrame();
                 homeFrame.setVisible(true);

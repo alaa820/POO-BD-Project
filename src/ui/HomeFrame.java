@@ -3,7 +3,7 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-
+import util.Session;
 /**
  * Main application frame for the Pharmacy Management System.
  * Contains left navigation panel with buttons for all modules and right content area
@@ -43,8 +43,9 @@ public class HomeFrame extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         panel.setBackground(new Color(240, 240, 240));
-        
-        // Button definitions
+
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(Session.getUserRole());
+
         String[] buttonNames = {
             "Dashboard",
             "Customer",
@@ -54,24 +55,28 @@ public class HomeFrame extends JFrame {
             "Command",
             "Employee"
         };
-        
-        // Create buttons
+
         for (String buttonName : buttonNames) {
+
+            // 🔒 hide admin-only buttons
+            if (!isAdmin && (buttonName.equals("Dashboard") || buttonName.equals("Employee"))) {
+                continue;
+            }
+
             JButton btn = new JButton(buttonName);
             btn.setAlignmentX(Component.CENTER_ALIGNMENT);
             btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
             btn.setFont(new Font("Arial", Font.BOLD, 12));
             btn.addActionListener(e -> switchPanel(buttonName));
-            
+
             panel.add(btn);
             panel.add(Box.createVerticalStrut(8));
         }
-        
-        // Add spacer at the bottom
+
         panel.add(Box.createVerticalGlue());
-        
         return panel;
     }
+
     
     /**
      * Creates all content panels and adds them to the CardLayout
@@ -79,19 +84,23 @@ public class HomeFrame extends JFrame {
     private void createContentPanels() {
         contentPanel.setBackground(Color.WHITE);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        
-        // Add all panels
-        contentPanel.add(new DashboardPanel(), "Dashboard");
+
+        boolean isAdmin = "ADMIN".equalsIgnoreCase(Session.getUserRole());
+
+        if (isAdmin) {
+            contentPanel.add(new DashboardPanel(), "Dashboard");
+            contentPanel.add(new EmployeePanel(), "Employee");
+        }
+
         contentPanel.add(new CustomerPanel(), "Customer");
         contentPanel.add(new SupplierPanel(), "Supplier");
         contentPanel.add(new MedicinePanel(), "Medicine");
         contentPanel.add(new SalePanel(), "Sale");
         contentPanel.add(new CommandPanel(), "Command");
-        contentPanel.add(new EmployeePanel(), "Employee");
-        
-        // Show Dashboard by default
-        cardLayout.show(contentPanel, "Dashboard");
+
+        cardLayout.show(contentPanel, isAdmin ? "Dashboard" : "Customer");
     }
+
     
     /**
      * Switches to the selected panel

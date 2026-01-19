@@ -187,4 +187,28 @@ public class EmployeeDao {
     	}
     	return false;
     }
+    public Employee getEmployeeByUsername(String username) {
+    			Employee employee = null;
+		try {
+			Connection con  = DatabaseConnection.getConnection();
+			String query = "SELECT * FROM utilisateur WHERE username = ?";
+			PreparedStatement pst = con.prepareStatement(query);
+			pst.setString(1, username);
+
+			ResultSet rs = pst.executeQuery();
+
+			if (rs.next()) {
+				String nom = rs.getString("nom");
+				String prenom = rs.getString("prenom");
+				String adresse = rs.getString("adresse");
+				String phone = rs.getString("phone");
+				String mdp = rs.getString("mdp");
+				String access = rs.getString("access");
+				employee = new Employee(username, nom, prenom, adresse, phone, mdp, access);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return employee;
+    }
 }

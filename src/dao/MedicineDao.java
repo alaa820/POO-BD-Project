@@ -123,13 +123,7 @@ public class MedicineDao {
       
     }
     
-    /**
-     * Search medicines by code_barre, name, or supplier
-     * @param codeBarre the code barre to search for (can be null)
-     * @param nom the medicine name to search for (can be null)
-     * @param supplier the supplier name to search for (can be null)
-     * @return List of matching medicines
-     */
+  
     public List<Medicine> searchMedicines(String codeBarre, String nom, String supplier) {
         		List<Medicine> medecines= new ArrayList<>();; // Initialize your list here
 		try {
@@ -203,22 +197,7 @@ public class MedicineDao {
 			}
 		return medecines;
     }
-    
-    /**
-     * Add a new medicine
-     * @param codeBarre the medicine code barre
-     * @param nom the medicine name
-     * @param prixAchat the purchase price
-     * @param prixVente the selling price
-     * @param tauxTVA the VAT rate
-     * @param dosage the dosage
-     * @param quantite the quantity
-     * @param seuil the threshold
-     * @param formePharmaceutique the pharmaceutical form
-     * @param emplacement the location/placement
-     * @param necessitePrescription whether prescription is required
-     * @param supplier the supplier object
-     */
+   
     public boolean addMedicine(String codeBarre, String nom, double prixAchat, double prixVente, 
                            double tauxTVA, String dosage, int quantite, int seuil, 
                            String formePharmaceutique, String emplacement, 
@@ -253,14 +232,9 @@ public class MedicineDao {
     	return false;
     	
     }
+    //throws exception when same code_barre
     
-    
-    /**
-     * Check if medicine quantity is available
-     * @param medicineId the medicine id
-     * @param requiredQuantity the required quantity
-     * @return true if quantity is available
-     */
+ 
     public boolean isQuantityAvailable(int medicineId, int requiredQuantity) {
         return false;
     }
@@ -296,5 +270,60 @@ public class MedicineDao {
 						e.printStackTrace();
 		}
     }
-    
+    public int countLowStockMedicines() {
+        String sql = "SELECT COUNT(*) FROM medicament WHERE quantite <= seuil";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
+
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    public int countMedicines() {
+        String sql = "SELECT COUNT(*) FROM medicament";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
+
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    public List<Medicine> getLowStockMedicines() {
+        List<Medicine> list = new ArrayList<>();
+        String sql = "SELECT * FROM medicament WHERE quantite <= seuil";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
+
+            while (rs.next()) {
+                Medicine m = new Medicine(
+                        rs.getString("code_barre"),
+                        rs.getString("nom"),
+                        rs.getDouble("prix_achat"),
+                        rs.getDouble("prix_vente"),
+                        rs.getDouble("taux_TVA"),
+                        rs.getString("dosage"),
+                        rs.getInt("quantite"),
+                        rs.getInt("seuil"),
+                        rs.getString("forme_pharmaceutique"),
+                        rs.getString("emplacement"),
+                        rs.getBoolean("necessite_prescription"),
+                        null // Supplier pas nécessaire pour la JTable
+                );
+                list.add(m);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 }

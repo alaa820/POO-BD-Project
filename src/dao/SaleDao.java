@@ -109,6 +109,24 @@ public class SaleDao {
 		}
 		return sale;
 	}
+	public double getTotalRevenue() {
+	    double totalRevenue = 0.0;
+	    String sql = "SELECT SUM(prix) AS chiffre_affaires FROM vente";
+
+	    try (Connection con = DatabaseConnection.getConnection();
+	         PreparedStatement pst = con.prepareStatement(sql);
+	         ResultSet rs = pst.executeQuery()) {
+
+	        if (rs.next()) {
+	            totalRevenue = rs.getDouble("chiffre_affaires");
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return totalRevenue;
+	}
 	
 	
 }

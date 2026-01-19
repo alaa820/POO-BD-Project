@@ -89,4 +89,21 @@ public class SupplierDao {
         }
         return list;
     }
+    
+    public int countSuppliers() {
+        int total = 0;
+        String sql = "SELECT COUNT(*) AS total FROM fournisseur";
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
+
+            if (rs.next()) {
+                total = rs.getInt("total");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return total;
+    }    
 }

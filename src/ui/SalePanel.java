@@ -300,7 +300,8 @@ public class SalePanel extends JPanel {
         if(quantity > selectedMedicine.getQuantite()) {
 			JOptionPane.showMessageDialog(this, "Insufficient stock for the selected medicine", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
-		}
+		}//data missing exception in medecine ocdebarre and sale
+        //nafs codebarre
         boolean alreadyInCart = false;
         for (SaleItem item : cartItems) {
 			if (item.getMedicine().getCodeBarre().equals(selectedMedicine.getCodeBarre())) {

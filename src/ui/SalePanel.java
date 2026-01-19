@@ -141,7 +141,7 @@ public class SalePanel extends JPanel {
         medicineCombo.addActionListener(e -> {
             selectedMedicine = (Medicine) medicineCombo.getSelectedItem();
             if (selectedMedicine != null) {
-                medicineField.setText(selectedMedicine.getName());
+                medicineField.setText(selectedMedicine.getNom());
                 medicineIdLabel.setText("ID: " + selectedMedicine.getIdMedicine());
             }
         });
@@ -310,9 +310,9 @@ public class SalePanel extends JPanel {
         // Create sale item
         SaleItem item = new SaleItem(
             selectedMedicine.getIdMedicine(),
-            selectedMedicine.getName(),
+            selectedMedicine.getNom(),
             quantity,
-            selectedMedicine.getPrice()
+            selectedMedicine.getPrixVente()
         );
         
         // Add to cart

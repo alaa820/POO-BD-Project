@@ -48,7 +48,8 @@ public class HomeFrame extends JFrame {
         String[] buttonNames = {
             "Dashboard",
             "Customer",
-            "Supplier",  
+            "Supplier",
+            "Medicine",
             "Sale",
             "Command",
             "Employee"
@@ -83,7 +84,7 @@ public class HomeFrame extends JFrame {
         contentPanel.add(new DashboardPanel(), "Dashboard");
         contentPanel.add(new CustomerPanel(), "Customer");
         contentPanel.add(new SupplierPanel(), "Supplier");
-        
+        contentPanel.add(new MedicinePanel(), "Medicine");
         contentPanel.add(new SalePanel(), "Sale");
         contentPanel.add(new CommandPanel(), "Command");
         contentPanel.add(new EmployeePanel(), "Employee");

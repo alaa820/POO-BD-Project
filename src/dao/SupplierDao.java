@@ -141,4 +141,52 @@ public class SupplierDao {
         }
         return total;
     }    
+    public List<Supplier> searchSuppliers(String nom, String prenom, String societe) {
+		List<Supplier> list = new ArrayList<>();
+		StringBuilder sql = new StringBuilder("SELECT * FROM Fournisseur WHERE 1=1");
+		List<Object> params = new ArrayList<>();
+
+		if (nom != null) {
+			sql.append(" AND nom LIKE ?");
+			params.add("%" + nom + "%");
+		}
+		if (prenom != null) {
+			sql.append(" AND prenom LIKE ?");
+			params.add("%" + prenom + "%");
+		}
+		if (societe != null) {
+			sql.append(" AND societe LIKE ?");
+			params.add("%" + societe + "%");
+		}
+
+		try (Connection c = DatabaseConnection.getConnection();
+			 PreparedStatement ps = c.prepareStatement(sql.toString())) {
+
+			for (int i = 0; i < params.size(); i++) {
+				ps.setObject(i + 1, params.get(i));
+			}
+
+			try (ResultSet rs = ps.executeQuery()) {
+				while (rs.next()) {
+					Supplier s = new Supplier(
+							rs.getString("nom"),
+							rs.getString("prenom"),
+							rs.getString("societe"),
+							rs.getString("email"),
+							rs.getString("telephone"),
+							rs.getString("adresse"),
+							rs.getString("description")
+					);
+					s.setIdFournisseur(rs.getInt("id_fournisseur"));
+					list.add(s);
+				}
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Erreur SQL : " + e.getMessage());
+		}
+		return list;
+	}
+    
 }

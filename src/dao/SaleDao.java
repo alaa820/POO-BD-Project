@@ -127,6 +127,43 @@ public class SaleDao {
 
 	    return totalRevenue;
 	}
+	public List<Sale> getSaleByEmployee(String username) {
+		List<Sale> listS= new ArrayList<>();; // Initialize your list here
+	 	try {
+	 		Connection con  = DatabaseConnection.getConnection();
+	 		// Sample query execution (pseudo-code)
+	 		String query = "SELECT * FROM vente WHERE username_name = ?";
+	 		PreparedStatement pst = con.prepareStatement(query);
+	 		pst.setString(1, username);
+
+	 		ResultSet rs = pst.executeQuery();
+	 		
+	 		
+	 		while(rs.next()) {
+				int idVente = rs.getInt("id_vente");
+				LocalDateTime dateVente = rs.getObject("date_vente", LocalDateTime.class);
+				double prix = rs.getDouble("prix");
+				int idClient = rs.getInt("id_client");
+				String usern = rs.getString("username_name");
+				
+				Customer c = new CustomerDao().getCustomerById(idClient);
+				Employee e = new EmployeeDao().getEmployeeByUsername(usern);
+				Sale sale = new Sale(idVente, dateVente, prix, c, e);
+				
+				
+				// Create Sale object and add to list (pseudo-code)
+				
+				
+				listS.add(sale);
+				// Sale sale = new Sale(...);
+				// sales.add(sale);
+			}
+	 	}
+	 	catch(Exception e) {
+	 					e.printStackTrace();
+	 	}
+	 	return listS;
+	 }
 	
 	
 }

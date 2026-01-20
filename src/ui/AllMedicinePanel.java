@@ -43,7 +43,9 @@ public class AllMedicinePanel extends JPanel {
 
         loadMedicines();
     }
-
+    public void refresh() {
+        loadMedicines();
+    }
     private void loadMedicines() {
         tableModel.setRowCount(0);
         List<Medicine> medicines = dao.getAllMedicines();

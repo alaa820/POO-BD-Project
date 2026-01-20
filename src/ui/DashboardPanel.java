@@ -16,7 +16,7 @@ import model.Supplier;
 import model.Employee;
 import model.Command;
 import dao.EmployeeDao;
-
+import model.Sale;
 public class DashboardPanel extends JPanel {
 
     private final MedicineDao medicineDao = new MedicineDao();
@@ -241,7 +241,18 @@ public class DashboardPanel extends JPanel {
 
         Object[][] data = new Object[employees.size()][3];
 
-        List<SaleItem> saleItems = saleItemDao.getAllSaleItem();
+        
+        for (Employee s : employees) {
+			int i = employees.indexOf(s);
+			String fullName = s.getNom() + " " + s.getPrenom();
+			List <Sale> salesByEmployee = saleDao.getSaleByEmployee(s.getUsername());
+			double totalRevenue = 0.0;
+			for (Sale sale : salesByEmployee) {
+				totalRevenue += sale.getPrix();
+			}
+			int numOrders = salesByEmployee.size();
+			
+        /*List<SaleItem> saleItems = saleItemDao.getAllSaleItem();
 
         for (Employee s : employees) {
             int i = employees.indexOf(s);
@@ -258,7 +269,7 @@ public class DashboardPanel extends JPanel {
                     totalRevenue += si.getMedicine().getPrixVente() * si.getQuantity();
                 }
             }
-
+*/
             data[i][0] = fullName;
             data[i][1] = numOrders;
             data[i][2] = String.format("%.2f", totalRevenue);

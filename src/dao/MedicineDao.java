@@ -256,8 +256,33 @@ return false;
     public boolean isQuantityAvailable(int medicineId, int requiredQuantity) {
         return false;
     }
-    
-    
+    public boolean updateMedicine(Medicine m) {
+        String query = "UPDATE medicament SET nom = ?, prix_achat = ?, prix_vente = ?, taux_tva = ?, dosage = ?, quantite = ?, seuil = ?, forme_pharmaceutique = ?, emplacement = ?, necessite_prescription = ?, id_fournisseur = ? WHERE code_barre = ?";
+        
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(query)) {
+            
+            pst.setString(1, m.getNom());
+            pst.setDouble(2, m.getPrixAchat());
+            pst.setDouble(3, m.getPrixVente());
+            pst.setDouble(4, m.getTauxTVA());
+            pst.setString(5, m.getDosage());
+            pst.setInt(6, m.getQuantite());
+            pst.setInt(7, m.getSeuil());
+            pst.setString(8, m.getFormePharmaceutique());
+            pst.setString(9, m.getEmplacement());
+            pst.setBoolean(10, m.isNecessitePrescription());
+            pst.setInt(11, m.getSupplier().getIdFournisseur());
+            pst.setString(12, m.getCodeBarre());
+            
+            int rowsAffected = pst.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public boolean deleteByCodeBarre(String codebarre) {
     	try {
     		Connection con  = DatabaseConnection.getConnection();

@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import model.Supplier;
+
 public class CommandDao {
 
     /**
@@ -43,11 +44,6 @@ public class CommandDao {
         }
         return -1;
     }
-
-    /**
-     * Add a single produit to commandeproduit table
-     */
-   
 
     /**
      * Update the statut of a commande. If statut equals 'reçue' (case-insensitive),
@@ -113,34 +109,48 @@ public class CommandDao {
     }
 
     /**
-     * Return the list of CommandeProduit for a given commande
-     */
-   
-    /**
      * Search commandes by fournisseur societe and return List<Command>
+     * Optimized with JOIN to avoid N+1 queries
      */
     public List<Command> searchCommandesByFournisseurSociete(String societe) {
         List<Command> list = new ArrayList<>();
-        String sql = "SELECT * "
-                   + "FROM commande c LEFT JOIN fournisseur f ON c.id_fournisseur = f.id_fournisseur "
-                   + "WHERE f.societe LIKE ?";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "SELECT c.id_commande, c.date_commande, c.date_reception, c.statut, c.prix, " +
+                     "f.id_fournisseur, f.nom, f.prenom, f.societe, f.email, f.telephone, f.adresse, f.description " +
+                     "FROM commande c " +
+                     "LEFT JOIN fournisseur f ON c.id_fournisseur = f.id_fournisseur " +
+                     "WHERE f.societe LIKE ?";
+        try (Connection con = DatabaseConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, "%" + (societe == null ? "" : societe) + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
+                int idCommande = rs.getInt("id_commande");
                 String statut = rs.getString("statut");
                 double prix = rs.getDouble("prix");
                 java.sql.Timestamp tsDateCmd = rs.getTimestamp("date_commande");
                 java.sql.Timestamp tsDateRec = rs.getTimestamp("date_reception");
+                
+                // Build Supplier from joined data
                 int idFournisseur = rs.getInt("id_fournisseur");
-                Supplier s = new SupplierDao().getSupplierById(idFournisseur);
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String societeF = rs.getString("societe");
+                String email = rs.getString("email");
+                String telephone = rs.getString("telephone");
+                String adresse = rs.getString("adresse");
+                String description = rs.getString("description");
+                
+                Supplier supplier = new Supplier(nom, prenom, societeF, email, telephone, adresse, description);
+                supplier.setIdFournisseur(idFournisseur);
+                
                 Command cmd = new Command(
-						tsDateCmd != null ? tsDateCmd.toLocalDateTime().toLocalDate() : null,
-						tsDateRec != null ? tsDateRec.toLocalDateTime().toLocalDate() : null,
-						statut,
-						prix,
-						s
-				);
+                    tsDateCmd != null ? tsDateCmd.toLocalDateTime().toLocalDate() : null,
+                    tsDateRec != null ? tsDateRec.toLocalDateTime().toLocalDate() : null,
+                    statut,
+                    prix,
+                    supplier
+                );
+                cmd.setIdCommande(idCommande);
                 list.add(cmd);
             }
         } catch (Exception ex) {
@@ -152,19 +162,49 @@ public class CommandDao {
 
     /**
      * Search commandes that include a produit whose medicament.nom matches the provided name
+     * Optimized with JOIN to avoid N+1 queries
      */
-    /*public List<Command> searchCommandesByMedicamentNom(String nom) {
+    public List<Command> searchCommandesByMedicamentNom(String nom) {
         List<Command> list = new ArrayList<>();
-        String sql = "SELECT DISTINCT c.id_commande, c.date_commande, c.date_reception, c.statut, c.prix, c.id_fournisseur "
-                   + "FROM commande c "
-                   + "JOIN commandeproduit cp ON cp.id_commande = c.id_commande "
-                   + "JOIN medicament m ON cp.code_barre = m.code_barre "
-                   + "WHERE m.nom LIKE ?";
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "SELECT DISTINCT c.id_commande, c.date_commande, c.date_reception, c.statut, c.prix, " +
+                     "f.id_fournisseur, f.nom, f.prenom, f.societe, f.email, f.telephone, f.adresse, f.description " +
+                     "FROM commande c " +
+                     "JOIN commandeproduit cp ON cp.id_commande = c.id_commande " +
+                     "JOIN medicament m ON cp.code_barre = m.code_barre " +
+                     "LEFT JOIN fournisseur f ON c.id_fournisseur = f.id_fournisseur " +
+                     "WHERE m.nom LIKE ?";
+        try (Connection con = DatabaseConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, "%" + (nom == null ? "" : nom) + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Command cmd = mapResultSetToCommand(rs);
+                int idCommande = rs.getInt("id_commande");
+                String statut = rs.getString("statut");
+                double prix = rs.getDouble("prix");
+                java.sql.Timestamp tsDateCmd = rs.getTimestamp("date_commande");
+                java.sql.Timestamp tsDateRec = rs.getTimestamp("date_reception");
+                
+                // Build Supplier from joined data
+                int idFournisseur = rs.getInt("id_fournisseur");
+                String nomF = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String societe = rs.getString("societe");
+                String email = rs.getString("email");
+                String telephone = rs.getString("telephone");
+                String adresse = rs.getString("adresse");
+                String description = rs.getString("description");
+                
+                Supplier supplier = new Supplier(nomF, prenom, societe, email, telephone, adresse, description);
+                supplier.setIdFournisseur(idFournisseur);
+                
+                Command cmd = new Command(
+                    tsDateCmd != null ? tsDateCmd.toLocalDateTime().toLocalDate() : null,
+                    tsDateRec != null ? tsDateRec.toLocalDateTime().toLocalDate() : null,
+                    statut,
+                    prix,
+                    supplier
+                );
+                cmd.setIdCommande(idCommande);
                 list.add(cmd);
             }
         } catch (Exception ex) {
@@ -172,56 +212,57 @@ public class CommandDao {
             JOptionPane.showMessageDialog(null, "Erreur en recherchant commandes par medicament: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
         }
         return list;
-    }*/
+    }
 
-    // Helper to map a ResultSet row into a Command model
-    /*private Command mapResultSetToCommand(ResultSet rs) throws java.sql.SQLException {
-        Command cmd = new Command(null, null, null, 0.0, 0);
-        int id = rs.getInt("id_commande");
-        cmd.setIdCommande(id);
-        java.sql.Timestamp tsDateCmd = rs.getTimestamp("date_commande");
-        if (tsDateCmd != null) {
-            cmd.setDateCommande(tsDateCmd.toLocalDateTime().toLocalDate());
-        }
-        java.sql.Timestamp tsDateRec = rs.getTimestamp("date_reception");
-        if (tsDateRec != null) {
-            cmd.setDateReception(tsDateRec.toLocalDateTime().toLocalDate());
-        }
-        cmd.setStatut(rs.getString("statut"));
-        cmd.setPrix(rs.getDouble("prix"));
-        cmd.setIdFournisseur(rs.getInt("id_fournisseur"));
-        return cmd;
-    }*/
-    
+    /**
+     * Get a command by ID with JOIN to avoid additional query for supplier
+     * Optimized to fetch supplier data in the same query
+     */
     public Command getCommandeById(int idCommande) {
-    	Command cmd = null;
-		String sql = "SELECT id_commande, date_commande, date_reception, statut, prix, id_fournisseur FROM commande WHERE id_commande = ?";
-		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-			ps.setInt(1, idCommande);
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				int id = rs.getInt("id_commande");
-				String statut = rs.getString("statut");
-				double prix = rs.getDouble("prix");
-				java.sql.Timestamp tsDateCmd = rs.getTimestamp("date_commande");
-				java.sql.Timestamp tsDateRec = rs.getTimestamp("date_reception");
-				int idFournisseur = rs.getInt("id_fournisseur");
-				Supplier s = new SupplierDao().getSupplierById(idFournisseur);
-				cmd = new Command(
-						tsDateCmd != null ? tsDateCmd.toLocalDateTime().toLocalDate() : null,
-						tsDateRec != null ? tsDateRec.toLocalDateTime().toLocalDate() : null,
-						statut,
-						prix,
-						s
-				);
-			}
-				return cmd;
-			
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Erreur en chargeant la commande: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-		}
-		return cmd;
-	}
-    
+        Command cmd = null;
+        String sql = "SELECT c.id_commande, c.date_commande, c.date_reception, c.statut, c.prix, " +
+                     "f.id_fournisseur, f.nom, f.prenom, f.societe, f.email, f.telephone, f.adresse, f.description " +
+                     "FROM commande c " +
+                     "LEFT JOIN fournisseur f ON c.id_fournisseur = f.id_fournisseur " +
+                     "WHERE c.id_commande = ?";
+        try (Connection con = DatabaseConnection.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idCommande);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int id = rs.getInt("id_commande");
+                String statut = rs.getString("statut");
+                double prix = rs.getDouble("prix");
+                java.sql.Timestamp tsDateCmd = rs.getTimestamp("date_commande");
+                java.sql.Timestamp tsDateRec = rs.getTimestamp("date_reception");
+                
+                // Build Supplier from joined data
+                int idFournisseur = rs.getInt("id_fournisseur");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String societe = rs.getString("societe");
+                String email = rs.getString("email");
+                String telephone = rs.getString("telephone");
+                String adresse = rs.getString("adresse");
+                String description = rs.getString("description");
+                
+                Supplier supplier = new Supplier(nom, prenom, societe, email, telephone, adresse, description);
+                supplier.setIdFournisseur(idFournisseur);
+                
+                cmd = new Command(
+                    tsDateCmd != null ? tsDateCmd.toLocalDateTime().toLocalDate() : null,
+                    tsDateRec != null ? tsDateRec.toLocalDateTime().toLocalDate() : null,
+                    statut,
+                    prix,
+                    supplier
+                );
+                cmd.setIdCommande(id);
+            }
+            return cmd;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erreur en chargeant la commande: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+        return cmd;
+    }
 }

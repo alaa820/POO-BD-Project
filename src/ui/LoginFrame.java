@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import dao.EmployeeDao;
+import exception.InvalideUsernameException;
 import dao.EmployeeDao;
 import util.Session;
 import model.Employee;
@@ -145,28 +146,28 @@ public class LoginFrame extends JFrame {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
         
-        // Validate input
         if (username.isEmpty() || password.isEmpty()) {
             messageLabel.setText("Please enter username and password");
             return;
         }
         
-        // Authenticate user using EmployeeDao
         EmployeeDao employeeDao = new EmployeeDao();
-        if (employeeDao.authenticateUser(username, password)) {
-            // Login successful - open HomeFrame and close LoginFrame
-        	Employee emp = employeeDao.getEmployeeByUsername(username);
-        	
-        	System.out.println("Logged in user: " + emp);
-        	Session.setCurrentUser(emp);
-        	
+        try {
+            // authenticateUser will either return true or throw exception
+            employeeDao.authenticateUser(username, password);
+            
+            // If we reach here, authentication was successful
+            Employee emp = employeeDao.getEmployeeByUsername(username);
+            
+            System.out.println("Logged in user: " + emp);
+            Session.setCurrentUser(emp);
+            
             SwingUtilities.invokeLater(() -> {
                 HomeFrame homeFrame = new HomeFrame();
                 homeFrame.setVisible(true);
                 LoginFrame.this.dispose();
             });
-        } else {
-            // Login failed - show error message
+        } catch(InvalideUsernameException e) {
             messageLabel.setText("Invalid username or password");
             passwordField.setText("");
             usernameField.requestFocus();

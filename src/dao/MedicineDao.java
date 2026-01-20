@@ -8,9 +8,13 @@ import util.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import exception.CodeBarreExistsException;
+import exception.DataMissingException;
 
 public class MedicineDao {
     
@@ -198,40 +202,54 @@ public class MedicineDao {
 		return medecines;
     }
    
-    public boolean addMedicine(String codeBarre, String nom, double prixAchat, double prixVente, 
-                           double tauxTVA, String dosage, int quantite, int seuil, 
-                           String formePharmaceutique, String emplacement, 
-                           boolean necessitePrescription, Supplier supplier) {
-    	try {
-    		Connection con  = DatabaseConnection.getConnection();
-			// Sample query execution (pseudo-code)`medicament`
-			String query = "INSERT INTO medicament (code_barre, nom,prix_achat,prix_vente,taux_TVA,dosage,quantite,seuil,forme_pharmaceutique,emplacement,necessite_prescription,id_fournisseur)  VALUES (?,?, ?, ?, ?, ?, ?, ?, ?,?,?,?)";
-			PreparedStatement pst = con.prepareStatement(query);
-			pst.setString(1, codeBarre);
-			pst.setString(2, nom);
-			pst.setDouble(3, prixAchat);
-			pst.setDouble(4, prixVente);
-			pst.setDouble(5, tauxTVA);
-			pst.setString(6, dosage);
-			pst.setInt(7, quantite);
-			pst.setInt(8, seuil);
-			pst.setString(9, formePharmaceutique);
-			pst.setString(10, emplacement);
-			pst.setBoolean(11, necessitePrescription);
-			pst.setInt(12, supplier.getIdFournisseur());
-			
-			
+    public boolean addMedicine(String codeBarre, String nom, double prixAchat, double prixVente,
+            double tauxTVA, String dosage, int quantite, int seuil,
+            String formePharmaceutique, String emplacement,
+            boolean necessitePrescription, Supplier supplier) throws CodeBarreExistsException,DataMissingException {
+try {
+Connection con = DatabaseConnection.getConnection();
 
-			int rowsAffected = pst.executeUpdate();
-			return rowsAffected > 0;
-			
-		}
-			catch(Exception e) {
-							e.printStackTrace();
-    	}
-    	return false;
-    	
-    }
+// First, check if code_barre already exists
+String checkQuery = "SELECT COUNT(*) FROM medicament WHERE code_barre = ?";
+PreparedStatement checkPst = con.prepareStatement(checkQuery);
+checkPst.setString(1, codeBarre);
+ResultSet rs = checkPst.executeQuery();
+
+if (rs.next() && rs.getInt(1) > 0) {
+throw new CodeBarreExistsException("Medicine with barcode " + codeBarre + " already exists");
+}
+if(codeBarre.isEmpty() ||nom.isEmpty() || prixAchat==0.0d|| tauxTVA ==0.0d || dosage.isEmpty() || quantite ==0 || seuil ==0 || formePharmaceutique.isEmpty() ||emplacement.isEmpty() || supplier ==null) {
+	throw new DataMissingException("Veuillez Remplir tous les champs SVP");
+}
+
+// If no duplicate, proceed with insertion
+String query = "INSERT INTO medicament (code_barre, nom, prix_achat, prix_vente, taux_TVA, dosage, quantite, seuil, forme_pharmaceutique, emplacement, necessite_prescription, id_fournisseur) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+PreparedStatement pst = con.prepareStatement(query);
+pst.setString(1, codeBarre);
+pst.setString(2, nom);
+pst.setDouble(3, prixAchat);
+pst.setDouble(4, prixVente);
+pst.setDouble(5, tauxTVA);
+pst.setString(6, dosage);
+pst.setInt(7, quantite);
+pst.setInt(8, seuil);
+pst.setString(9, formePharmaceutique);
+pst.setString(10, emplacement);
+pst.setBoolean(11, necessitePrescription);
+pst.setInt(12, supplier.getIdFournisseur());
+
+int rowsAffected = pst.executeUpdate();
+return rowsAffected > 0;
+
+} catch (CodeBarreExistsException e) {
+// Rethrow our custom exception
+throw e;
+} catch (SQLException e) {
+e.printStackTrace();
+// You could also throw a custom exception here for database errors
+return false;
+}
+}
     //throws exception when same code_barre
     
  

@@ -1,4 +1,6 @@
 package ui;
+import exception.CodeBarreExistsException;
+import exception.DataMissingException;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -219,7 +221,7 @@ public class AddMedicinePanel extends JPanel {
     }
 
     private void handleAddMedicine() {
-       // try {
+        try {
             String codeBarre = codeBarreField.getText().trim();
             String nom = nomField.getText().trim();
             double prixAchat = Double.parseDouble(prixAchatField.getText().trim());
@@ -236,21 +238,27 @@ public class AddMedicinePanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Veuillez sélectionner un fournisseur !");
                 return;
             }
-            
+            try {
             boolean success = medicineDao.addMedicine(codeBarre, nom, prixAchat, prixVente, tauxTVA, 
                         dosage, quantite, seuil, formePharmaceutique, 
                         emplacement, necessitePrescription, selectedSupplier);
-            	if(success) {
+            	
                 JOptionPane.showMessageDialog(this, "medicament ajouté avec succès !");
                 clearForm();
-            	} else {
-            						JOptionPane.showMessageDialog(this, "Échec de l'ajout du médicament !");
-            	}
-       /* } catch (NumberFormatException ex) {
+            	} 
+            catch(DataMissingException e)
+            {
+            	JOptionPane.showMessageDialog(this, e.getMessage());
+            }
+            catch(CodeBarreExistsException e)
+            {
+            						JOptionPane.showMessageDialog(this, "Medicament existe deja !");}
+            	
+       } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs correctement !");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Erreur : " + ex.getMessage());
-        }*/
+        }
         
     }
 

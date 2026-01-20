@@ -6,9 +6,13 @@ import model.Employee;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.List;
+
+import exception.InvalideUsernameException;
+
 import java.util.ArrayList;
 
 public class EmployeeDao {
@@ -19,33 +23,30 @@ public class EmployeeDao {
      * @param password the password to authenticate
      * @return true if authentication is successful, false otherwise
      */
-    public boolean authenticateUser(String username, String password) {
-    	// Replace this with actual database query to validate credentials
-        //connection to database and query execution logic goes here
-    	try {
-    		Connection con  = DatabaseConnection.getConnection();
-    		// Sample query execution (pseudo-code)
-    		String query = "SELECT * FROM utilisateur WHERE username = ? AND mdp = ?";
-    		PreparedStatement pst = con.prepareStatement(query);
-
-    		pst.setString(1, username); // first '?'
-    		pst.setString(2, password); // second '?'
-
-    		ResultSet rs = pst.executeQuery();
-    		
-    		if(rs.next()) {
-    			System.out.println("Login successful! Role: " + rs.getString("access"));
-				return true;
-			}
-    		else {
-    			System.out.println("Login failed!");
-				return false;
-    		}
-    	}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return "admin".equals(username) && "password".equals(password);
-    }
+	public boolean authenticateUser(String username, String password) throws InvalideUsernameException {
+	    try {
+	        Connection con = DatabaseConnection.getConnection();
+	        String query = "SELECT * FROM utilisateur WHERE username = ? AND mdp = ?";
+	        PreparedStatement pst = con.prepareStatement(query);
+	        
+	        pst.setString(1, username);
+	        pst.setString(2, password);
+	        
+	        ResultSet rs = pst.executeQuery();
+	        
+	        if(rs.next()) {
+	            System.out.println("Login successful! Role: " + rs.getString("access"));
+	            return true;
+	        } else {
+	            System.out.println("Login failed!");
+	            throw new InvalideUsernameException("Invalid Username or Password");
+	        }
+	    } catch(SQLException e) {
+	        e.printStackTrace();
+	        throw new InvalideUsernameException("Database error occurred");
+	    }
+	    // No need for "return false" here - exception is thrown or true is returned
+	}
     
     /**
      * Get all employees from the database
@@ -206,6 +207,7 @@ public class EmployeeDao {
 				String access = rs.getString("access");
 				employee = new Employee(username, nom, prenom, adresse, phone, mdp, access);
 			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

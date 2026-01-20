@@ -1,5 +1,7 @@
-/ui/
-/model/
 /dao/
-/util/
 /exception/
+/main/
+/model/
+/module-info.class
+/ui/
+/util/

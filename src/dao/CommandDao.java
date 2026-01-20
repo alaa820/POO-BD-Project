@@ -265,4 +265,87 @@ public class CommandDao {
         }
         return cmd;
     }
+    public List<Command> getAllCommands(boolean pending) {
+        List<Command> list = new ArrayList<>();
+        String sql = "SELECT c.id_commande, c.date_commande, c.date_reception, c.statut, c.id_fournisseur, " +
+                     "COALESCE((SELECT SUM(cp.quantite * m.prix_achat) FROM commandeproduit cp JOIN medicament m ON cp.code_barre = m.code_barre WHERE cp.id_commande = c.id_commande), c.prix, 0) AS prix, " +
+                     "f.id_fournisseur, f.nom, f.prenom, f.societe, f.email, f.telephone, f.adresse, f.description " +
+                     "FROM commande c " +
+                     "LEFT JOIN fournisseur f ON c.id_fournisseur = f.id_fournisseur " +
+                     (pending ? "WHERE c.date_reception IS NULL" : "WHERE c.date_reception IS NOT NULL");
+        
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                int idCommande = rs.getInt("id_commande");
+                java.sql.Timestamp tsDateCmd = rs.getTimestamp("date_commande");
+                java.sql.Timestamp tsDateRec = rs.getTimestamp("date_reception");
+                String statut = rs.getString("statut");
+                double prix = rs.getDouble("prix");
+                
+                // Build Supplier
+                int idFournisseur = rs.getInt("id_fournisseur");
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String societe = rs.getString("societe");
+                String email = rs.getString("email");
+                String telephone = rs.getString("telephone");
+                String adresse = rs.getString("adresse");
+                String description = rs.getString("description");
+                
+                Supplier supplier = new Supplier(nom, prenom, societe, email, telephone, adresse, description);
+                supplier.setIdFournisseur(idFournisseur);
+                
+                // Build Command
+                Command cmd = new Command(
+                    tsDateCmd != null ? tsDateCmd.toLocalDateTime().toLocalDate() : null,
+                    tsDateRec != null ? tsDateRec.toLocalDateTime().toLocalDate() : null,
+                    statut,
+                    prix,
+                    supplier
+                );
+                cmd.setIdCommande(idCommande);
+                list.add(cmd);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erreur en chargeant commandes: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+        return list;
+    }
+    public List<Command> getReceivedCommandsReceivedBySupplier(Supplier supplier) {
+		List<Command> list = new ArrayList<>();
+		String sql = "SELECT c.id_commande, c.date_commande, c.date_reception, c.statut, c.prix " +
+					 "FROM commande c " +
+					 "WHERE c.id_fournisseur = ? AND c.date_reception IS NOT NULL";
+		try (Connection con = DatabaseConnection.getConnection();
+			 PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, supplier.getIdFournisseur());
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				int idCommande = rs.getInt("id_commande");
+				java.sql.Timestamp tsDateCmd = rs.getTimestamp("date_commande");
+				java.sql.Timestamp tsDateRec = rs.getTimestamp("date_reception");
+				String statut = rs.getString("statut");
+				double prix = rs.getDouble("prix");
+				
+				Command cmd = new Command(
+					tsDateCmd != null ? tsDateCmd.toLocalDateTime().toLocalDate() : null,
+					tsDateRec != null ? tsDateRec.toLocalDateTime().toLocalDate() : null,
+					statut,
+					prix,
+					supplier
+				);
+				cmd.setIdCommande(idCommande);
+				list.add(cmd);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Erreur en chargeant commandes reçues par fournisseur: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+		}
+		return list;
+	}
+    
 }

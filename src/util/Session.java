@@ -29,4 +29,7 @@ public class Session {
     public static String getUserRole() {
 		return isLoggedIn() ? currentUser.getAccess() : null;
 	}
+    public static void clearSession() {
+		currentUser = null;
+	}
 }

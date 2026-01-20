@@ -9,9 +9,13 @@ import dao.MedicineDao;
 import dao.SaleDao;
 import dao.SupplierDao;
 import dao.SaleItemDao;
+import dao.CommandDao;
 import model.Medicine;
 import model.SaleItem;
 import model.Supplier;
+import model.Employee;
+import model.Command;
+import dao.EmployeeDao;
 
 public class DashboardPanel extends JPanel {
 
@@ -19,6 +23,8 @@ public class DashboardPanel extends JPanel {
     private final SaleDao saleDao = new SaleDao();
     private final SupplierDao supplierDao = new SupplierDao();
     private final SaleItemDao saleItemDao = new SaleItemDao();
+    private final EmployeeDao employeeDao = new EmployeeDao();
+    private final CommandDao commandDao = new CommandDao();
 
     private JTable alertTable;
     private JPanel statsPanel;
@@ -59,7 +65,7 @@ public class DashboardPanel extends JPanel {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         panel.add(titleLabel, BorderLayout.WEST);
 
-        JButton refreshButton = new JButton("🔄 Actualiser");
+        JButton refreshButton = new JButton("Actualiser");
         refreshButton.setPreferredSize(new Dimension(120, 35));
         refreshButton.setFont(new Font("Arial", Font.BOLD, 12));
         refreshButton.addActionListener(e -> refreshDashboard());
@@ -126,7 +132,7 @@ public class DashboardPanel extends JPanel {
         panel.setBackground(Color.WHITE);
 
         if(medicineDao.countLowStockMedicines() == 0) {
-            JLabel noAlertLabel = new JLabel("✅ Aucun médicament n'est sous le seuil minimal", SwingConstants.CENTER);
+            JLabel noAlertLabel = new JLabel("Aucun médicament n'est sous le seuil minimal", SwingConstants.CENTER);
             noAlertLabel.setFont(new Font("Arial", Font.BOLD, 14));
             noAlertLabel.setForeground(new Color(0, 128, 0));
             noAlertLabel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
@@ -134,7 +140,7 @@ public class DashboardPanel extends JPanel {
             return panel;
         } else {
             // Phrase d'alerte
-            JLabel alertLabel = new JLabel("⚠️ Alerte : certains médicaments sont sous le seuil minimal", SwingConstants.CENTER);
+            JLabel alertLabel = new JLabel("Alerte : certains médicaments sont sous le seuil minimal", SwingConstants.CENTER);
             alertLabel.setFont(new Font("Arial", Font.BOLD, 14));
             alertLabel.setForeground(Color.RED);
             alertLabel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -169,12 +175,16 @@ public class DashboardPanel extends JPanel {
         JButton revenueReportBtn = new JButton("💰 Chiffre d'affaires");
         revenueReportBtn.addActionListener(e -> showRevenueReport());
 
-        JButton supplierReportBtn = new JButton("👥 Performance fournisseurs");
-        supplierReportBtn.addActionListener(e -> showSupplierReport());
+        JButton employeeReportBtn = new JButton("👥 Performance employés");
+        employeeReportBtn.addActionListener(e -> showEmployeeReport());
+
+        JButton supplierPerfBtn = new JButton("🏢 Performance fournisseurs");
+        supplierPerfBtn.addActionListener(e -> showSupplierPerformanceReport());
 
         panel.add(stockReportBtn);
         panel.add(revenueReportBtn);
-        panel.add(supplierReportBtn);
+        panel.add(employeeReportBtn);
+        panel.add(supplierPerfBtn);
 
         return panel;
     }
@@ -209,39 +219,41 @@ public class DashboardPanel extends JPanel {
                 "Chiffre d'affaires", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // Rapport Performance fournisseurs
-    private void showSupplierReport() {
-        JPanel supplierPanel = createSupplierPerformancePanel();
+    // Rapport Performance employés
+    private void showEmployeeReport() {
+        JPanel employeePanel = createEmployeePerformancePanel();
 
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
-                "Performance Fournisseurs", true);
-        dialog.getContentPane().add(supplierPanel);
+                "Performance Employés", true);
+        dialog.getContentPane().add(employeePanel);
         dialog.setSize(600, 400);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
 
-    // Panel Performance fournisseurs
-    private JPanel createSupplierPerformancePanel() {
+    // Panel Performance employés
+    private JPanel createEmployeePerformancePanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Performance Fournisseurs"));
+        panel.setBorder(BorderFactory.createTitledBorder("Performance Employés"));
 
-        String[] columns = {"Fournisseur", "Nombre de commandes", "Chiffre d'affaires (DT)"};
-        List<Supplier> suppliers = supplierDao.getAllSuppliers();
+        String[] columns = {"Employés", "Nombre de ventes", "Chiffre d'affaires (DT)"};
+        List<Employee> employees = employeeDao.getAllEmployees();
 
-        Object[][] data = new Object[suppliers.size()][3];
+        Object[][] data = new Object[employees.size()][3];
 
         List<SaleItem> saleItems = saleItemDao.getAllSaleItem();
 
-        for (int i = 0; i < suppliers.size(); i++) {
-            Supplier s = suppliers.get(i);
+        for (Employee s : employees) {
+            int i = employees.indexOf(s);
             String fullName = s.getNom() + " " + s.getPrenom();
 
             int numOrders = 0;
             double totalRevenue = 0;
 
             for (SaleItem si : saleItems) {
-                if (si.getMedicine().getSupplier().getIdFournisseur() == s.getIdFournisseur()) {
+                System.out.println("Vérification de la vente pour l'employé: " + s.getUsername());
+                if (si.getSale().getEmployee().getUsername().equals(s.getUsername())) {
+                    System.out.println("Correspondance trouvée pour l'employé: " + fullName);
                     numOrders++;
                     totalRevenue += si.getMedicine().getPrixVente() * si.getQuantity();
                 }
@@ -259,6 +271,69 @@ public class DashboardPanel extends JPanel {
         return panel;
     }
 
-    // Main pour tester la dashboard
-    
+    // Rapport Performance fournisseurs
+    private void showSupplierPerformanceReport() {
+        JPanel supplierPanel = createSupplierPerformancePanel();
+
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
+                "Performance Fournisseurs", true);
+        dialog.getContentPane().add(supplierPanel);
+        dialog.setSize(700, 450);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    // Panel Performance fournisseurs
+    private JPanel createSupplierPerformancePanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder("Performance Fournisseurs"));
+
+        String[] columns = {"Société", "Commandes reçues", "Délai moyen (jours)"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        List<Supplier> suppliers = supplierDao.getAllSuppliers();
+
+        for (Supplier supplier : suppliers) {
+            // Get all received commands for this supplier
+            List<Command> allCommands = commandDao.getReceivedCommandsReceivedBySupplier(supplier);
+            
+            int receivedCount = allCommands.size();
+            double averageDelay = 0.0;
+
+            if (receivedCount > 0) {
+                long totalDays = 0;
+                for (Command cmd : allCommands) {
+                    if (cmd.getDateCommande() != null && cmd.getDateReception() != null) {
+                        long days = java.time.temporal.ChronoUnit.DAYS.between(
+                            cmd.getDateCommande(), 
+                            cmd.getDateReception()
+                        );
+                        totalDays += days;
+                    }
+                }
+                averageDelay = receivedCount > 0 ? (double) totalDays / receivedCount : 0.0;
+            }
+
+            model.addRow(new Object[]{
+                supplier.getSociete(),
+                receivedCount,
+                String.format("%.1f", averageDelay)
+            });
+        }
+
+        JTable table = new JTable(model);
+        table.setFont(new Font("Arial", Font.PLAIN, 12));
+        table.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+        table.setRowHeight(25);
+        table.setFillsViewportHeight(true);
+        
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        return panel;
+    }
 }

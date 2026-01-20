@@ -3,12 +3,10 @@ package ui;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.util.List;
 
-import util.DatabaseConnection;
+
 import dao.CommandDao;
 import dao.MedicineDao;
 import dao.SupplierDao;
@@ -32,11 +30,10 @@ public class ViewCommandPanel extends JPanel {
     private CommandItemDao commandItemDao;
 
     // Search UI
-    private JComboBox<String> searchCombo;
     private JTextField searchField;
     private JButton searchButton;
 
-    // Action buttons (promoted to fields so selection listener and handlers can access them)
+    // Action buttons
     private JButton markReceivedBtn;
     private JButton cancelBtn;
     private JButton deleteBtn;
@@ -115,12 +112,17 @@ public class ViewCommandPanel extends JPanel {
 
         // Search toolbar (above the table)
         JPanel searchTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 6));
-        searchCombo = new JComboBox<>(new String[] {"Societe Fournisseur"});
+        
+        JLabel searchLabel = new JLabel("Fournisseur:");
+        searchLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        searchTop.add(searchLabel);
+        
         searchField = new JTextField(20);
-        searchButton = new JButton("Rechercher");
-        searchTop.add(searchCombo);
         searchTop.add(searchField);
+        
+        searchButton = new JButton("Rechercher");
         searchTop.add(searchButton);
+        
         panel.add(searchTop, BorderLayout.NORTH);
 
         searchButton.addActionListener(e -> performSearch());
@@ -151,7 +153,7 @@ public class ViewCommandPanel extends JPanel {
         cancelBtn.addActionListener(e -> cancelSelectedCommande());
         bottom.add(cancelBtn);
 
-        // Supprimer Commande: only works if statut != 'reçue'
+        // Supprimer Commande
         deleteBtn = new JButton("Supprimer Commande");
         deleteBtn.addActionListener(e -> deleteSelectedCommande());
         bottom.add(deleteBtn);
@@ -182,7 +184,7 @@ public class ViewCommandPanel extends JPanel {
 
             // Annuler works only when en attente
             cancelBtn.setEnabled(isEnAttente);
-            // Supprimer: enable for any selected row (including received)
+            // Supprimer: enable for any selected row
             deleteBtn.setEnabled(true);
             // Mark received works only when en attente
             markReceivedBtn.setEnabled(isEnAttente);
@@ -253,7 +255,7 @@ public class ViewCommandPanel extends JPanel {
     private void loadAllCommandProducts() {
         commandProductsTableModel.setRowCount(0);
         try {
-            List<CommandItem> items = commandItemDao.getAllCommandItems();
+            List<CommandItem> items = commandItemDao.getAllCommandItemsReceived();
             populateCommandProductsTable(items);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -308,7 +310,7 @@ public class ViewCommandPanel extends JPanel {
             
             // Get fournisseur from command
             Supplier s = item.getC().getSupplier();
-			String fournisseur = s != null ? s.getSociete() : "N/A";
+            String fournisseur = s != null ? s.getSociete() : "N/A";
             
             commandProductsTableModel.addRow(new Object[] {
                 idCommande,
@@ -328,12 +330,10 @@ public class ViewCommandPanel extends JPanel {
             loadCommands(showingPending);
             return;
         }
-        String selected = (String) searchCombo.getSelectedItem();
+        
         List<Command> rows = null;
         try {
-            if ("Societe Fournisseur".equals(selected)) {
-                rows = commandDao.searchCommandesByFournisseurSociete(q);
-            }
+            rows = commandDao.searchCommandesByFournisseurSociete(q);
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Erreur lors de la recherche: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
@@ -348,9 +348,14 @@ public class ViewCommandPanel extends JPanel {
             if (showingPending && !isPending) continue;
             if (!showingPending && isPending) continue;
 
-            
-
-            commandsTableModel.addRow(new Object[] { c.getIdCommande(), c.getSupplier().getSociete(), c.getDateCommande(), c.getDateReception(), c.getStatut(), String.format("%.2f", c.getPrix()) });
+            commandsTableModel.addRow(new Object[] { 
+                c.getIdCommande(), 
+                c.getSupplier().getSociete(), 
+                c.getDateCommande(), 
+                c.getDateReception(), 
+                c.getStatut(), 
+                String.format("%.2f", c.getPrix()) 
+            });
         }
     }
 
@@ -398,10 +403,6 @@ public class ViewCommandPanel extends JPanel {
                 int current = med.getQuantite();
                 int updated = current + cp.getQuantity();
                 medicineDao.updateMedicineQuantity(cp.getM().getCodeBarre(), updated);
-              /*  boolean uok = medicineDao.updateMedicineQuantity(code, updated);
-                if (!uok) {
-                    System.out.println("Failed to update quantite for " + code);
-                }*/
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -442,8 +443,8 @@ public class ViewCommandPanel extends JPanel {
             return;
         }
 
-        // Delete the commande
-        boolean ok = commandDao.deleteCommande(idCommande);
+        // Update status to cancelled
+        boolean ok = commandDao.updateStatut(idCommande, "annulée");
         if (!ok) {
             JOptionPane.showMessageDialog(this, "Erreur lors de l'annulation de la commande", "Erreur", JOptionPane.ERROR_MESSAGE);
             return;
@@ -471,7 +472,7 @@ public class ViewCommandPanel extends JPanel {
             return;
         }
 
-        // Confirm before deleting (allow deletion for received orders as requested)
+        // Confirm before deleting
         int confirm = JOptionPane.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer cette commande? Cette action supprimera aussi les produits associés.", "Confirmer suppression", JOptionPane.YES_NO_OPTION);
         if (confirm != JOptionPane.YES_OPTION) {
             return;
@@ -489,22 +490,23 @@ public class ViewCommandPanel extends JPanel {
     }
 
     private void loadCommands(boolean pending) {
-        commandsTableModel.setRowCount(0);//in command dao :  getCommandREceived list<commadn>
-        String sql = "SELECT c.id_commande, c.date_commande, c.date_reception, c.statut, c.id_fournisseur, "
-                   + "COALESCE((SELECT SUM(cp.quantite * m.prix_achat) FROM commandeproduit cp JOIN medicament m ON cp.code_barre = m.code_barre WHERE cp.id_commande = c.id_commande), c.prix, 0) AS prix, "
-                   + "f.societe AS fournisseur "
-                   + "FROM commande c LEFT JOIN fournisseur f ON c.id_fournisseur = f.id_fournisseur "
-                   + (pending ? "WHERE c.date_reception IS NULL" : "WHERE c.date_reception IS NOT NULL");
-        try (Connection con = DatabaseConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Object id = rs.getObject("id_commande");
-                Object fournisseur = rs.getObject("fournisseur");
-                Object dateCmd = rs.getObject("date_commande");
-                Object dateRec = rs.getObject("date_reception");
-                Object statut = rs.getObject("statut");
-                Object prix = rs.getObject("prix");
-                commandsTableModel.addRow(new Object[] { id, fournisseur, dateCmd, dateRec, statut, String.format("%.2f", prix == null ? 0.0 : ((Number)prix).doubleValue()) });
+        commandsTableModel.setRowCount(0);
+        
+        try {
+            List<Command> commands = commandDao.getAllCommands(pending);
+            
+            for (Command c : commands) {
+                double prix = c.getPrix();
+                String fournisseur = c.getSupplier() != null ? c.getSupplier().getSociete() : "N/A";
+                
+                commandsTableModel.addRow(new Object[] { 
+                    c.getIdCommande(), 
+                    fournisseur, 
+                    c.getDateCommande(), 
+                    c.getDateReception(), 
+                    c.getStatut(), 
+                    String.format("%.2f", prix) 
+                });
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -512,16 +514,6 @@ public class ViewCommandPanel extends JPanel {
         }
     }
 
-    /*
-     * TODO:
-     * button view commandProduit search (fourniseur, medicament) wala zouz
-     * 
-     * 
-     * 
-     * */
-    
-    
-    
     // expose refresh
     public void refresh() { loadCommands(showingPending); }
 }

@@ -33,4 +33,5 @@ public class CommandItem {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
+	
 }

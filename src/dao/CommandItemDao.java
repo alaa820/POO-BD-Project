@@ -158,6 +158,27 @@ public class CommandItemDao {
         }
         return list;
     }
-
+    public List<CommandItem> getAllCommandItemsReceived(){
+		List<CommandItem> list = new ArrayList<>();
+		try {
+			String sql = "SELECT * FROM commandeproduit cp "
+					+ "JOIN commande c ON cp.id_commande = c.id_commande "
+					+ "WHERE c.statut = 'Reçue'";
+			Connection con = DatabaseConnection.getConnection();
+			PreparedStatement pst = con.prepareStatement(sql);
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				String codeBarre = rs.getString("code_barre");
+				int quantite = rs.getInt("quantite");
+				Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
+				Command c = new CommandDao().getCommandeById(rs.getInt("id_commande"));
+				list.add(new CommandItem(c,m, quantite));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+	}
 
 }

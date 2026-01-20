@@ -5,6 +5,7 @@ import java.awt.*;
 import java.sql.SQLException;
 import model.Supplier;
 import dao.SupplierDao;
+import exception.DataMissingException;
 
 /**
  * Panel to add a new supplier
@@ -98,6 +99,7 @@ public class AddSupplierPanel extends JPanel {
     }
 
     private void handleAddSupplier() {
+    	
         Supplier s = new Supplier(
                 nomField.getText(),
                 prenomField.getText(),
@@ -110,8 +112,12 @@ public class AddSupplierPanel extends JPanel {
         try {
             supplierDao.addSupplier(s);
             JOptionPane.showMessageDialog(this, "Fournisseur ajouté avec succès !");
-            clearForm();
-        } catch (SQLException e) {
+            clearForm();}
+            catch(DataMissingException e)
+        {
+            	JOptionPane.showMessageDialog(this,e.getMessage(),"Erreur d'ajout" ,JOptionPane.ERROR_MESSAGE);
+        }
+        catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Erreur SQL : " + e.getMessage());
         }
     }

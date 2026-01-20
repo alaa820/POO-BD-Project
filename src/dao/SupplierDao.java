@@ -1,6 +1,7 @@
 package dao;
 import javax.swing.JOptionPane;
 
+import exception.DataMissingException;
 import model.Supplier;
 import util.DatabaseConnection;
 
@@ -11,12 +12,15 @@ import java.util.List;
 public class SupplierDao {
 
     // Ajouter un fournisseur
-    public void addSupplier(Supplier s) throws SQLException {
+    public void addSupplier(Supplier s) throws SQLException,DataMissingException {
         String sql = "INSERT INTO Fournisseur " +
                      "(nom, prenom, societe, email, telephone, adresse, description) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        if(s.getNom().isEmpty()|| s.getPrenom().isEmpty() || s.getSociete().isEmpty() ||s.getEmail().isEmpty() || s.getTelephone().isEmpty() || s.getAdresse().isEmpty())
+        	throw new DataMissingException("Plead fill in all required fields(nom, prenom, societe, email, telephone, adresse)" );
         try (Connection c = DatabaseConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
+        	
 
             ps.setString(1, s.getNom());
             ps.setString(2, s.getPrenom());
@@ -28,8 +32,39 @@ public class SupplierDao {
 
             ps.executeUpdate();
         }
+       
     }
 
+    public Supplier getSupplierById(int id) {
+		Supplier s = null;
+		String sql = "SELECT * FROM Fournisseur WHERE id_fournisseur = ?";
+		try (Connection c = DatabaseConnection.getConnection();
+			 PreparedStatement ps = c.prepareStatement(sql)) {
+
+			ps.setInt(1, id);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					s = new Supplier(
+							rs.getString("nom"),
+							rs.getString("prenom"),
+							rs.getString("societe"),
+							rs.getString("email"),
+							rs.getString("telephone"),
+							rs.getString("adresse"),
+							rs.getString("description")
+					);
+					s.setIdFournisseur(rs.getInt("id_fournisseur"));
+				}
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Erreur SQL : " + e.getMessage());
+		}
+		return s;
+	}
+    
+    
     // Récupérer tous les fournisseurs
     public List<Supplier> getAllSuppliers() {
         List<Supplier> list = new ArrayList<>();

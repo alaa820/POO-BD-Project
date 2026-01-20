@@ -378,8 +378,15 @@ public class SalePanel extends JPanel {
         				// Here you would typically call a SaleDao to save the sale and sale items
         	saleItemDao = new SaleItemDao();
         	saleItemDao.saveSaleItem(id, item);
+        	if(item.getMedicine().getQuantite() < item.getMedicine().getSeuil()) {
+        		JOptionPane.showMessageDialog(this, "Warning: Stock for medicine " + item.getMedicine().getNom() + " is below the threshold!", "Stock Warning", JOptionPane.WARNING_MESSAGE);
+        	}
         }
-        
+        /**
+         * 	TODO:
+         * verify stock before checkout
+         * 
+         * */
         JOptionPane.showMessageDialog(this,
                 "Sale completed successfully!\n\n" +
                         "Customer: " + selectedCustomer.getNom() + " " + selectedCustomer.getPrenom() + "\n" +

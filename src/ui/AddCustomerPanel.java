@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import dao.CustomerDao;
+import exception.DataMissingException;
 
 
 /**
@@ -153,7 +154,7 @@ public class AddCustomerPanel extends JPanel {
      * Handle adding a customer
      */
     private void handleAddCustomer() {
-        // Validate input
+        // Get input values
         String nom = nomField.getText().trim();
         String prenom = prenomField.getText().trim();
         String dateStr = dateNaissanceField.getText().trim();
@@ -163,29 +164,41 @@ public class AddCustomerPanel extends JPanel {
         String adresse = adresseField.getText().trim();
         String description = descriptionArea.getText().trim();
         
-        // Validate fields
-        if (nom.isEmpty() || prenom.isEmpty() || dateStr.isEmpty() || telephone.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields (Nom, Prenom, Date Naissance, Telephone)", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
         // Parse date
         LocalDate dateNaissance;
         try {
             dateNaissance = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
         } catch (DateTimeParseException e) {
-            JOptionPane.showMessageDialog(this, "Invalid date format. Use YYYY-MM-DD", "Date Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, 
+                "Invalid date format. Use YYYY-MM-DD", 
+                "Date Error", 
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
         
         // Call DAO to add customer
-        boolean success = customerDao.addCustomer(nom, prenom, dateNaissance, sexe, telephone, email, adresse, description);
-        
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Customer added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            clearForm();
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to add customer. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        try {
+            boolean success = customerDao.addCustomer(nom, prenom, dateNaissance, sexe, 
+                                                      telephone, email, adresse, description);
+            
+            if (success) {
+                JOptionPane.showMessageDialog(this, 
+                    "Customer added successfully!", 
+                    "Success", 
+                    JOptionPane.INFORMATION_MESSAGE);
+                clearForm();
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Failed to add customer", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+            
+        } catch(DataMissingException e) {
+            JOptionPane.showMessageDialog(this, 
+                e.getMessage(), 
+                "Validation Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
     

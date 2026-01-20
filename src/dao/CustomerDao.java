@@ -6,8 +6,12 @@ import util.DatabaseConnection;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+
+import exception.DataMissingException;
+
 import java.util.ArrayList;
 public class CustomerDao {
     public CustomerDao() {
@@ -157,29 +161,35 @@ public class CustomerDao {
      * @param description description
      * @return true if customer was added successfully
      */
-    public boolean addCustomer(String nom, String prenom, LocalDate dateNaissance, String sexe, String telephone, String email, String adresse, String description) {
-    	try {
-    		Connection con  = DatabaseConnection.getConnection();
-			// Sample query execution (pseudo-code)
-			String query = "INSERT INTO client (nom, prenom, date_naissance, sexe, telephone, email, adresse, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-			PreparedStatement pst = con.prepareStatement(query);
+    public boolean addCustomer(String nom, String prenom, LocalDate dateNaissance, String sexe, 
+            String telephone, String email, String adresse, String description) 
+            throws DataMissingException {
+// Validate required fields
+if(nom.isEmpty() || prenom.isEmpty() || dateNaissance == null || 
+telephone.isEmpty() || email.isEmpty() || adresse.isEmpty()) {
+throw new DataMissingException("Please fill in all required fields (Nom, Prenom, Date Naissance, Telephone, Email, Adresse)");
+}
 
-			pst.setString(1, nom);
-			pst.setString(2, prenom);
-			pst.setDate(3, java.sql.Date.valueOf(dateNaissance));
-			pst.setString(4, sexe);
-			pst.setString(5, telephone);
-			pst.setString(6, email);
-			pst.setString(7, adresse);
-			pst.setString(8, description);
+try {
+Connection con = DatabaseConnection.getConnection();
+String query = "INSERT INTO client (nom, prenom, date_naissance, sexe, telephone, email, adresse, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+PreparedStatement pst = con.prepareStatement(query);
 
-			int rowsAffected = pst.executeUpdate();
-			
-			return rowsAffected > 0;
-		}
-			catch(Exception e) {
-							e.printStackTrace();
-    	}
-    	return false;
-    }
+pst.setString(1, nom);
+pst.setString(2, prenom);
+pst.setDate(3, java.sql.Date.valueOf(dateNaissance));
+pst.setString(4, sexe);
+pst.setString(5, telephone);
+pst.setString(6, email);
+pst.setString(7, adresse);
+pst.setString(8, description);
+
+int rowsAffected = pst.executeUpdate();  // EXECUTE THE QUERY!
+return rowsAffected > 0;
+
+} catch(SQLException e) {
+e.printStackTrace();
+throw new DataMissingException("Database error: " + e.getMessage());
+}
+}
 }

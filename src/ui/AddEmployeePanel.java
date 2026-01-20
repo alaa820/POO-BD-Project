@@ -3,6 +3,7 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 import dao.EmployeeDao;
+import exception.DataMissingException;
 
 /**
  * Panel to add a new employee
@@ -132,7 +133,7 @@ public class AddEmployeePanel extends JPanel {
      * Handle adding an employee
      */
     private void handleAddEmployee() {
-        // Validate input
+        // Get input values
         String nom = nomField.getText().trim();
         String prenom = prenomField.getText().trim();
         String username = usernameField.getText().trim();
@@ -141,20 +142,26 @@ public class AddEmployeePanel extends JPanel {
         String adresse = adresseField.getText().trim();
         String access = (String) accessCombo.getSelectedItem();
         
-        // Validate required fields
-        if (nom.isEmpty() || prenom.isEmpty() || username.isEmpty() || mdp.isEmpty() || phone.isEmpty() || adresse.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields", "Validation Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        // TODO: Call employeeDao.addEmployee(username, nom, prenom, adresse, phone, mdp, access)
-        boolean success = employeeDao.addEmployee(username, nom, prenom, adresse, phone, mdp, access);
-        
-        if (success) {
-            JOptionPane.showMessageDialog(this, "Employee added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-            clearForm();
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to add employee. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        try {
+            boolean success = employeeDao.addEmployee(username, nom, prenom, adresse, phone, mdp, access);
+            
+            if (success) {
+                JOptionPane.showMessageDialog(this, 
+                    "Employee added successfully!", 
+                    "Success", 
+                    JOptionPane.INFORMATION_MESSAGE);
+                clearForm();
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Failed to add employee. Please try again.", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        } catch(DataMissingException e) {
+            JOptionPane.showMessageDialog(this, 
+                e.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
     

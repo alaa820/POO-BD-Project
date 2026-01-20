@@ -248,11 +248,11 @@ public class AddMedicinePanel extends JPanel {
             	} 
             catch(DataMissingException e)
             {
-            	JOptionPane.showMessageDialog(this, e.getMessage());
+            	JOptionPane.showMessageDialog(this, e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
             }
             catch(CodeBarreExistsException e)
             {
-            						JOptionPane.showMessageDialog(this, "Medicament existe deja !");}
+            	JOptionPane.showMessageDialog(this, "Medicament existe deja !"," Medicine Error",JOptionPane.ERROR_MESSAGE);}
             	
        } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs correctement !");

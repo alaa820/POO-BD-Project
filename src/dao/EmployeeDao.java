@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.util.List;
 
+import exception.DataMissingException;
 import exception.InvalideUsernameException;
 
 import java.util.ArrayList;
@@ -43,9 +44,10 @@ public class EmployeeDao {
 	        }
 	    } catch(SQLException e) {
 	        e.printStackTrace();
-	        throw new InvalideUsernameException("Database error occurred");
+	        throw new InvalideUsernameException("Database error");
+	        
 	    }
-	    // No need for "return false" here - exception is thrown or true is returned
+	    
 	}
     
     /**
@@ -162,32 +164,35 @@ public class EmployeeDao {
      * @param access role/access level
      * @return true if employee was added successfully
      */
-    public boolean addEmployee(String username, String nom, String prenom, String adresse, String phone, String mdp, String access) {
-        // TODO: Query: INSERT INTO employee (username, nom, prenom, adresse, phone, mdp, access) VALUES (?, ?, ?, ?, ?, ?, ?)
-        System.out.println("Adding employee: " + nom + " " + prenom + " (username: " + username + ")");
-        try {
-    		Connection con  = DatabaseConnection.getConnection();
-			// Sample query execution (pseudo-code)
-			String query = "INSERT INTO utilisateur (username, adresse, nom, prenom, mdp, phone , access) VALUES (?, ?, ?, ?, ?, ?, ?)";
-			PreparedStatement pst = con.prepareStatement(query);
+    public boolean addEmployee(String username, String nom, String prenom, String adresse, 
+            String phone, String mdp, String access) throws DataMissingException {
+// Validate required fields
+if(nom.isEmpty() || prenom.isEmpty() || username.isEmpty() || 
+mdp.isEmpty() || phone.isEmpty() || adresse.isEmpty()) {
+throw new DataMissingException("Please fill in all required fields");
+}
 
-			pst.setString(1, username);
-			pst.setString(2, adresse);
-			pst.setString(3, nom);
-			pst.setString(4, prenom);
-			pst.setString(5, mdp);
-			pst.setString(6, phone);
-			pst.setString(7, access);
+try {
+Connection con = DatabaseConnection.getConnection();
+String query = "INSERT INTO utilisateur (username, adresse, nom, prenom, mdp, phone, access) VALUES (?, ?, ?, ?, ?, ?, ?)";
+PreparedStatement pst = con.prepareStatement(query);
 
-			int rowsAffected = pst.executeUpdate();
-			
-			return rowsAffected > 0;
-		}
-			catch(Exception e) {
-							e.printStackTrace();
-    	}
-    	return false;
-    }
+pst.setString(1, username);
+pst.setString(2, adresse);
+pst.setString(3, nom);
+pst.setString(4, prenom);
+pst.setString(5, mdp);
+pst.setString(6, phone);
+pst.setString(7, access);
+
+int rowsAffected = pst.executeUpdate();
+return rowsAffected > 0;
+
+} catch(SQLException e) {  // Catch SQLException specifically
+e.printStackTrace();
+throw new DataMissingException("Database error: " + e.getMessage());
+}
+}
     public Employee getEmployeeByUsername(String username) {
     			Employee employee = null;
 		try {

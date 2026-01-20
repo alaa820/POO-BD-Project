@@ -54,6 +54,7 @@ public class HomeFrame extends JFrame {
             "Sale",
             "ViewSale",
             "Command",
+            "CommandView",
             "Employee"
         };
 
@@ -98,6 +99,7 @@ public class HomeFrame extends JFrame {
         contentPanel.add(new MedicinePanel(), "Medicine");
         contentPanel.add(new SalePanel(), "Sale");
         contentPanel.add(new ViewSalePanel(), "ViewSale");
+        contentPanel.add(new ViewCommandPanel(), "CommandView");
         contentPanel.add(new CommandPanel(), "Command");
 
         cardLayout.show(contentPanel, isAdmin ? "Dashboard" : "Customer");

@@ -13,7 +13,7 @@ import model.Customer;
  * Panel to display all customers in a table
  */
 public class AllCustomersPanel extends JPanel {
-    
+  /*  
     private DefaultTableModel tableModel;
     private JTable table;
     private CustomerDao customerDao;
@@ -52,7 +52,7 @@ public class AllCustomersPanel extends JPanel {
     
     /**
      * Load all customers from database and display in table
-     */
+     
     private void loadAllCustomers() {
         tableModel.setRowCount(0);
         List<Customer> customers = customerDao.getAllCustomers();
@@ -66,5 +66,5 @@ public class AllCustomersPanel extends JPanel {
                 c.getDescription()
             });
         }
-    }
+    }*/
 }

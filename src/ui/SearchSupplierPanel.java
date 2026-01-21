@@ -8,7 +8,7 @@ import dao.SupplierDao;
 import model.Supplier;
 
 /**
- * Panel to search suppliers by name, prenom, or societe
+ * Panel to search suppliers by last name, first name, or company
  */
 public class SearchSupplierPanel extends JPanel {
     private JTextField nomField;
@@ -29,8 +29,8 @@ public class SearchSupplierPanel extends JPanel {
         topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         topPanel.setBackground(new Color(245, 245, 245));
         
-        // Nom field
-        JLabel nomLabel = new JLabel("Nom:");
+        // Last Name field
+        JLabel nomLabel = new JLabel("Last Name:");
         nomLabel.setFont(new Font("Arial", Font.BOLD, 12));
         topPanel.add(nomLabel);
         
@@ -39,8 +39,8 @@ public class SearchSupplierPanel extends JPanel {
         nomField.addActionListener(e -> searchSupplier());
         topPanel.add(nomField);
         
-        // Prenom field
-        JLabel prenomLabel = new JLabel("Prénom:");
+        // First Name field
+        JLabel prenomLabel = new JLabel("First Name:");
         prenomLabel.setFont(new Font("Arial", Font.BOLD, 12));
         topPanel.add(prenomLabel);
         
@@ -49,8 +49,8 @@ public class SearchSupplierPanel extends JPanel {
         prenomField.addActionListener(e -> searchSupplier());
         topPanel.add(prenomField);
         
-        // Societe field
-        JLabel societeLabel = new JLabel("Société:");
+        // Company field
+        JLabel societeLabel = new JLabel("Company:");
         societeLabel.setFont(new Font("Arial", Font.BOLD, 12));
         topPanel.add(societeLabel);
         
@@ -60,12 +60,12 @@ public class SearchSupplierPanel extends JPanel {
         topPanel.add(societeField);
         
         // Buttons
-        searchBtn = new JButton("Rechercher");
+        searchBtn = new JButton("Search");
         searchBtn.setFont(new Font("Arial", Font.BOLD, 12));
         searchBtn.addActionListener(e -> searchSupplier());
         topPanel.add(searchBtn);
         
-        clearBtn = new JButton("Effacer");
+        clearBtn = new JButton("Clear");
         clearBtn.setFont(new Font("Arial", Font.BOLD, 12));
         clearBtn.addActionListener(e -> clearFields());
         topPanel.add(clearBtn);
@@ -73,7 +73,7 @@ public class SearchSupplierPanel extends JPanel {
         add(topPanel, BorderLayout.NORTH);
         
         // Table
-        String[] columns = {"Nom", "Prénom", "Société", "Email", "Téléphone", "Adresse", "Description"};
+        String[] columns = {"Last Name", "First Name", "Company", "Email", "Phone", "Address", "Description"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
@@ -101,8 +101,8 @@ public class SearchSupplierPanel extends JPanel {
         // Check if at least one field is filled
         if (nom == null && prenom == null && societe == null) {
             JOptionPane.showMessageDialog(this, 
-                "Veuillez entrer au moins un critère de recherche", 
-                "Recherche vide", 
+                "Please enter at least one search criteria", 
+                "Empty Search", 
                 JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -112,8 +112,8 @@ public class SearchSupplierPanel extends JPanel {
         
         if (results.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
-                "Aucun fournisseur trouvé", 
-                "Aucun résultat", 
+                "No suppliers found", 
+                "No Results", 
                 JOptionPane.INFORMATION_MESSAGE);
         } else {
             for (Supplier s : results) {

@@ -38,7 +38,7 @@ public class SearchCustomerPanel extends JPanel {
         // Nom field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        JLabel nomLabel = new JLabel("Nom:");
+        JLabel nomLabel = new JLabel("Name:");
         nomLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchPanel.add(nomLabel, gbc);
         
@@ -50,7 +50,7 @@ public class SearchCustomerPanel extends JPanel {
         // Prenom field
         gbc.gridx = 2;
         gbc.gridy = 0;
-        JLabel prenomLabel = new JLabel("Prenom :");
+        JLabel prenomLabel = new JLabel("Surname :");
         prenomLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchPanel.add(prenomLabel, gbc);
         
@@ -62,7 +62,7 @@ public class SearchCustomerPanel extends JPanel {
         // Telephone field
         gbc.gridx = 4;
         gbc.gridy = 0;
-        JLabel telephoneLabel = new JLabel("Telephone :");
+        JLabel telephoneLabel = new JLabel("Phone :");
         telephoneLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchPanel.add(telephoneLabel, gbc);
         
@@ -87,7 +87,7 @@ public class SearchCustomerPanel extends JPanel {
         prenomField.addActionListener(e -> performSearch());
         
         // Create results table
-        String[] columnNames = {"Nom", "Prenom", "Telephone", "Adresse", "Description"};
+        String[] columnNames = {"Name", "Surname", "Phone", "Address", "Description"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {

@@ -52,7 +52,7 @@ public class DashboardPanel extends JPanel {
         
         add(centerContainer, BorderLayout.CENTER);
 
-        // Boutons rapports
+        // Report buttons
         add(createReportsPanel(), BorderLayout.SOUTH);
     }
 
@@ -61,11 +61,11 @@ public class DashboardPanel extends JPanel {
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
-        JLabel titleLabel = new JLabel("📊 Dashboard Pharmacie", SwingConstants.LEFT);
+        JLabel titleLabel = new JLabel("Dashboard", SwingConstants.LEFT);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         panel.add(titleLabel, BorderLayout.WEST);
 
-        JButton refreshButton = new JButton("Actualiser");
+        JButton refreshButton = new JButton("Refresh");
         refreshButton.setPreferredSize(new Dimension(120, 35));
         refreshButton.setFont(new Font("Arial", Font.BOLD, 12));
         refreshButton.addActionListener(e -> refreshDashboard());
@@ -95,12 +95,12 @@ public class DashboardPanel extends JPanel {
         }
         
         JOptionPane.showMessageDialog(this, 
-            "Dashboard actualisé avec succès!", 
-            "Actualisation", 
+            "Dashboard updated successfully!", 
+            "Update", 
             JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // 4 panels en haut
+    // 4 panels at the top
     private JPanel createStatsPanel() {
         JPanel panel = new JPanel(new GridLayout(1, 4, 10, 10));
         panel.setBackground(Color.WHITE);
@@ -110,10 +110,10 @@ public class DashboardPanel extends JPanel {
         double totalRevenue = saleDao.getTotalRevenue();
         int totalSuppliers = supplierDao.countSuppliers();
 
-        panel.add(createStatCard("Total produits", totalMedicines));
-        panel.add(createStatCard("Stock faible", lowStock));
-        panel.add(createStatCard("Chiffre d'affaires (DT)", totalRevenue));
-        panel.add(createStatCard("Fournisseurs", totalSuppliers));
+        panel.add(createStatCard("Total Products", totalMedicines));
+        panel.add(createStatCard("Low Stock", lowStock));
+        panel.add(createStatCard("Revenue (DT)", totalRevenue));
+        panel.add(createStatCard("Suppliers", totalSuppliers));
 
         return panel;
     }
@@ -126,29 +126,29 @@ public class DashboardPanel extends JPanel {
         return label;
     }
 
-    // Panel central = phrase + tableau alertes
+    // Central panel = message + alerts table
     private JPanel createAlertTablePanelWithMessage() {
         JPanel panel = new JPanel(new BorderLayout(5,5));
         panel.setBackground(Color.WHITE);
 
         if(medicineDao.countLowStockMedicines() == 0) {
-            JLabel noAlertLabel = new JLabel("Aucun médicament n'est sous le seuil minimal", SwingConstants.CENTER);
+            JLabel noAlertLabel = new JLabel("No medicines are below minimum threshold", SwingConstants.CENTER);
             noAlertLabel.setFont(new Font("Arial", Font.BOLD, 14));
             noAlertLabel.setForeground(new Color(0, 128, 0));
             noAlertLabel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
             panel.add(noAlertLabel, BorderLayout.CENTER);
             return panel;
         } else {
-            // Phrase d'alerte
-            JLabel alertLabel = new JLabel("Alerte : certains médicaments sont sous le seuil minimal", SwingConstants.CENTER);
+            // Alert message
+            JLabel alertLabel = new JLabel("Alert: some medicines are below minimum threshold", SwingConstants.CENTER);
             alertLabel.setFont(new Font("Arial", Font.BOLD, 14));
             alertLabel.setForeground(Color.RED);
             alertLabel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
             panel.add(alertLabel, BorderLayout.NORTH);
         }
         
-        // Tableau
-        String[] columns = {"Médicament", "Quantité", "Seuil"};
+        // Table
+        String[] columns = {"Medicine", "Quantity", "Threshold"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         alertTable = new JTable(model);
         alertTable.setFillsViewportHeight(true);
@@ -164,21 +164,21 @@ public class DashboardPanel extends JPanel {
         return panel;
     }
 
-    // Boutons rapports
+    // Report buttons
     private JPanel createReportsPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         panel.setBackground(Color.WHITE);
 
-        JButton stockReportBtn = new JButton("📋 Etat du stock");
+        JButton stockReportBtn = new JButton("Stock Status");
         stockReportBtn.addActionListener(e -> showStockReport());
 
-        JButton revenueReportBtn = new JButton("💰 Chiffre d'affaires");
+        JButton revenueReportBtn = new JButton("💰 Revenue");
         revenueReportBtn.addActionListener(e -> showRevenueReport());
 
-        JButton employeeReportBtn = new JButton("👥 Performance employés");
+        JButton employeeReportBtn = new JButton("👥 Employee Performance");
         employeeReportBtn.addActionListener(e -> showEmployeeReport());
 
-        JButton supplierPerfBtn = new JButton("🏢 Performance fournisseurs");
+        JButton supplierPerfBtn = new JButton("🏢 Supplier Performance");
         supplierPerfBtn.addActionListener(e -> showSupplierPerformanceReport());
 
         panel.add(stockReportBtn);
@@ -189,11 +189,11 @@ public class DashboardPanel extends JPanel {
         return panel;
     }
 
-    // Rapport stock = liste complète des produits
+    // Stock report = complete product list
     private void showStockReport() {
         List<Medicine> allMedicines = medicineDao.getAllMedicines();
 
-        String[] columns = {"Nom", "Quantité", "Seuil", "Emplacement"};
+        String[] columns = {"Name", "Quantity", "Threshold", "Location"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
 
         for (Medicine m : allMedicines) {
@@ -205,38 +205,38 @@ public class DashboardPanel extends JPanel {
         table.setFillsViewportHeight(true);
         JScrollPane scrollPane = new JScrollPane(table);
 
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Etat complet du stock", true);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Complete Stock Status", true);
         dialog.getContentPane().add(scrollPane);
         dialog.setSize(600, 400);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
 
-    // Rapport chiffre d'affaires
+    // Revenue report
     private void showRevenueReport() {
         double totalRevenue = saleDao.getTotalRevenue();
-        JOptionPane.showMessageDialog(this, "Chiffre d'affaires total : " + totalRevenue + " DT",
-                "Chiffre d'affaires", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Total Revenue: " + totalRevenue + " DT",
+                "Revenue", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // Rapport Performance employés
+    // Employee Performance report
     private void showEmployeeReport() {
         JPanel employeePanel = createEmployeePerformancePanel();
 
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
-                "Performance Employés", true);
+                "Employee Performance", true);
         dialog.getContentPane().add(employeePanel);
         dialog.setSize(600, 400);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
 
-    // Panel Performance employés
+    // Employee Performance panel
     private JPanel createEmployeePerformancePanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Performance Employés"));
+        panel.setBorder(BorderFactory.createTitledBorder("Employee Performance"));
 
-        String[] columns = {"Employés", "Nombre de ventes", "Chiffre d'affaires (DT)"};
+        String[] columns = {"Employees", "Number of Sales", "Revenue (DT)"};
         List<Employee> employees = employeeDao.getAllEmployees();
 
         Object[][] data = new Object[employees.size()][3];
@@ -262,9 +262,9 @@ public class DashboardPanel extends JPanel {
             double totalRevenue = 0;
 
             for (SaleItem si : saleItems) {
-                System.out.println("Vérification de la vente pour l'employé: " + s.getUsername());
+                System.out.println("Checking sale for employee: " + s.getUsername());
                 if (si.getSale().getEmployee().getUsername().equals(s.getUsername())) {
-                    System.out.println("Correspondance trouvée pour l'employé: " + fullName);
+                    System.out.println("Match found for employee: " + fullName);
                     numOrders++;
                     totalRevenue += si.getMedicine().getPrixVente() * si.getQuantity();
                 }
@@ -282,24 +282,24 @@ public class DashboardPanel extends JPanel {
         return panel;
     }
 
-    // Rapport Performance fournisseurs
+    // Supplier Performance report
     private void showSupplierPerformanceReport() {
         JPanel supplierPanel = createSupplierPerformancePanel();
 
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
-                "Performance Fournisseurs", true);
+                "Supplier Performance", true);
         dialog.getContentPane().add(supplierPanel);
         dialog.setSize(700, 450);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
 
-    // Panel Performance fournisseurs
+    // Supplier Performance panel
     private JPanel createSupplierPerformancePanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Performance Fournisseurs"));
+        panel.setBorder(BorderFactory.createTitledBorder("Supplier Performance"));
 
-        String[] columns = {"Société", "Commandes reçues", "Délai moyen (jours)"};
+        String[] columns = {"Company", "Orders Received", "Average Delay (days)"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {

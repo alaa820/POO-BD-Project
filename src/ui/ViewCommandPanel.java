@@ -77,7 +77,7 @@ public class ViewCommandPanel extends JPanel {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         panel.setBorder(BorderFactory.createTitledBorder("View Options"));
 
-        JButton btnPending = new JButton("Commandes en attente");
+        JButton btnPending = new JButton("Pending Orders");
         btnPending.setPreferredSize(new Dimension(180, 35));
         btnPending.addActionListener(e -> {
             showingPending = true;
@@ -85,7 +85,7 @@ public class ViewCommandPanel extends JPanel {
             cardLayout.show(contentPanel, "COMMANDS");
         });
 
-        JButton btnReceived = new JButton("Commandes reçues");
+        JButton btnReceived = new JButton("Received Orders");
         btnReceived.setPreferredSize(new Dimension(180, 35));
         btnReceived.addActionListener(e -> {
             showingPending = false;
@@ -93,7 +93,7 @@ public class ViewCommandPanel extends JPanel {
             cardLayout.show(contentPanel, "COMMANDS");
         });
 
-        JButton btnViewProducts = new JButton("Voir Produits Commandés");
+        JButton btnViewProducts = new JButton("View Ordered Products");
         btnViewProducts.setPreferredSize(new Dimension(200, 35));
         btnViewProducts.addActionListener(e -> {
             cardLayout.show(contentPanel, "PRODUCTS");
@@ -108,19 +108,19 @@ public class ViewCommandPanel extends JPanel {
 
     private JPanel createCommandsPanel() {
         JPanel panel = new JPanel(new BorderLayout(5,5));
-        panel.setBorder(BorderFactory.createTitledBorder("Commandes"));
+        panel.setBorder(BorderFactory.createTitledBorder("Orders"));
 
         // Search toolbar (above the table)
         JPanel searchTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 6));
         
-        JLabel searchLabel = new JLabel("Fournisseur:");
+        JLabel searchLabel = new JLabel("Supplier:");
         searchLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchTop.add(searchLabel);
         
         searchField = new JTextField(20);
         searchTop.add(searchField);
         
-        searchButton = new JButton("Rechercher");
+        searchButton = new JButton("Search");
         searchTop.add(searchButton);
         
         panel.add(searchTop, BorderLayout.NORTH);
@@ -128,7 +128,7 @@ public class ViewCommandPanel extends JPanel {
         searchButton.addActionListener(e -> performSearch());
         searchField.addActionListener(e -> performSearch());
 
-        String[] columns = {"ID Commande","Fournisseur","Date Commande","Date Réception","Statut","Prix"};
+        String[] columns = {"Order ID","Supplier","Order Date","Receipt Date","Status","Price"};
         commandsTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -148,18 +148,18 @@ public class ViewCommandPanel extends JPanel {
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        // Annuler Commande: only for statut = "en attente"
-        cancelBtn = new JButton("Annuler Commande");
+        // Cancel Order: only for status = "pending"
+        cancelBtn = new JButton("Cancel Order");
         cancelBtn.addActionListener(e -> cancelSelectedCommande());
         bottom.add(cancelBtn);
 
-        // Supprimer Commande
-        deleteBtn = new JButton("Supprimer Commande");
+        // Delete Order
+        deleteBtn = new JButton("Delete Order");
         deleteBtn.addActionListener(e -> deleteSelectedCommande());
         bottom.add(deleteBtn);
 
         // Mark as received
-        markReceivedBtn = new JButton("Marquer comme reçue");
+        markReceivedBtn = new JButton("Mark as Received");
         markReceivedBtn.addActionListener(e -> markSelectedAsReceived());
         bottom.add(markReceivedBtn);
 
@@ -168,7 +168,7 @@ public class ViewCommandPanel extends JPanel {
         bottom.add(refresh);
         panel.add(bottom, BorderLayout.SOUTH);
 
-        // Enable/disable action buttons based on selection & statut
+        // Enable/disable action buttons based on selection & status
         commandsTable.getSelectionModel().addListSelectionListener(e -> {
             int sel = commandsTable.getSelectedRow();
             if (sel < 0) {
@@ -180,14 +180,14 @@ public class ViewCommandPanel extends JPanel {
             int modelRow = commandsTable.convertRowIndexToModel(sel);
             Object statutObj = commandsTableModel.getValueAt(modelRow, 4);
             String statut = statutObj == null ? "" : statutObj.toString();
-            boolean isEnAttente = "en attente".equalsIgnoreCase(statut);
+            boolean isPending = "pending".equalsIgnoreCase(statut);
 
-            // Annuler works only when en attente
-            cancelBtn.setEnabled(isEnAttente);
-            // Supprimer: enable for any selected row
+            // Cancel works only when pending
+            cancelBtn.setEnabled(isPending);
+            // Delete: enable for any selected row
             deleteBtn.setEnabled(true);
-            // Mark received works only when en attente
-            markReceivedBtn.setEnabled(isEnAttente);
+            // Mark received works only when pending
+            markReceivedBtn.setEnabled(isPending);
         });
 
         markReceivedBtn.setEnabled(false);
@@ -198,23 +198,23 @@ public class ViewCommandPanel extends JPanel {
 
     private JPanel createCommandProductsPanel() {
         JPanel panel = new JPanel(new BorderLayout(5,5));
-        panel.setBorder(BorderFactory.createTitledBorder("Produits Commandés"));
+        panel.setBorder(BorderFactory.createTitledBorder("Ordered Products"));
 
         // Search toolbar with two search fields
         JPanel searchTop = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 6));
-        searchTop.add(new JLabel("Fournisseur:"));
+        searchTop.add(new JLabel("Supplier:"));
         searchFournisseurField = new JTextField(15);
         searchTop.add(searchFournisseurField);
         
-        searchTop.add(new JLabel("Médicament:"));
+        searchTop.add(new JLabel("Medicine:"));
         searchMedicamentField = new JTextField(15);
         searchTop.add(searchMedicamentField);
         
-        searchProductsButton = new JButton("Rechercher");
+        searchProductsButton = new JButton("Search");
         searchProductsButton.addActionListener(e -> performProductSearch());
         searchTop.add(searchProductsButton);
         
-        JButton clearButton = new JButton("Effacer");
+        JButton clearButton = new JButton("Clear");
         clearButton.addActionListener(e -> {
             searchFournisseurField.setText("");
             searchMedicamentField.setText("");
@@ -225,7 +225,7 @@ public class ViewCommandPanel extends JPanel {
         panel.add(searchTop, BorderLayout.NORTH);
 
         // Table for command products
-        String[] columns = {"ID Commande", "Code Barre", "Nom Médicament", "Quantité", "Prix Unitaire", "Fournisseur"};
+        String[] columns = {"Order ID", "Barcode", "Medicine Name", "Quantity", "Unit Price", "Supplier"};
         commandProductsTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -259,7 +259,7 @@ public class ViewCommandPanel extends JPanel {
             populateCommandProductsTable(items);
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur lors du chargement des produits: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading products: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -276,10 +276,10 @@ public class ViewCommandPanel extends JPanel {
                 // Search by both
                 items = commandItemDao.searchByFournisseurAndMedicament(fournisseur, medicament);
             } else if (!fournisseur.isEmpty()) {
-                // Search by fournisseur only
+                // Search by supplier only
                 items = commandItemDao.searchByFournisseur(fournisseur);
             } else if (!medicament.isEmpty()) {
-                // Search by medicament only
+                // Search by medicine only
                 items = commandItemDao.searchByMedicine(medicament);
             } else {
                 // No search criteria, load all
@@ -290,7 +290,7 @@ public class ViewCommandPanel extends JPanel {
             populateCommandProductsTable(items);
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur lors de la recherche: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Search error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -308,7 +308,7 @@ public class ViewCommandPanel extends JPanel {
             String nomMed = med != null ? med.getNom() : "N/A";
             double prixUnitaire = med != null ? med.getPrixAchat() : 0.0;
             
-            // Get fournisseur from command
+            // Get supplier from command
             Supplier s = item.getC().getSupplier();
             String fournisseur = s != null ? s.getSociete() : "N/A";
             
@@ -336,7 +336,7 @@ public class ViewCommandPanel extends JPanel {
             rows = commandDao.searchCommandesByFournisseurSociete(q);
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur lors de la recherche: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Search error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -362,42 +362,42 @@ public class ViewCommandPanel extends JPanel {
     private void markSelectedAsReceived() {
         int sel = commandsTable.getSelectedRow();
         if (sel < 0) {
-            JOptionPane.showMessageDialog(this, "Veuillez selectionner une commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select an order", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         int modelRow = commandsTable.convertRowIndexToModel(sel);
         Object idObj = commandsTableModel.getValueAt(modelRow, 0);
         if (idObj == null) {
-            JOptionPane.showMessageDialog(this, "Impossible de lire l'identifiant de la commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Unable to read order ID", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         int idCommande;
         try { idCommande = Integer.parseInt(idObj.toString()); } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Identifiant de commande invalide", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid order ID", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         Object statutObj = commandsTableModel.getValueAt(modelRow, 4);
         String statut = statutObj == null ? "" : statutObj.toString();
-        if (!"en attente".equalsIgnoreCase(statut)) {
-            JOptionPane.showMessageDialog(this, "Commande déjà reçue", "Info", JOptionPane.INFORMATION_MESSAGE);
+        if (!"pending".equalsIgnoreCase(statut)) {
+            JOptionPane.showMessageDialog(this, "Order already received", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
-        // Update statut in DB
-        boolean ok = commandDao.updateStatut(idCommande, "reçue");
+        // Update status in DB
+        boolean ok = commandDao.updateStatut(idCommande, "received");
         if (!ok) {
-            JOptionPane.showMessageDialog(this, "Erreur lors de la mise à jour du statut", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error updating status", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // For each produit, increment medicine quantity
+        // For each product, increment medicine quantity
         List<CommandItem> produits = commandItemDao.getCommandItemByCommandId(idCommande);
         for (CommandItem cp : produits) {
             try {
                 Medicine med = cp.getM();
                 if (med == null) {
-                    System.out.println("Medicament not found for code: " + cp.getM().getCodeBarre());
+                    System.out.println("Medicine not found for code: " + cp.getM().getCodeBarre());
                     continue;
                 }
                 int current = med.getQuantite();
@@ -408,84 +408,84 @@ public class ViewCommandPanel extends JPanel {
             }
         }
 
-        JOptionPane.showMessageDialog(this, "Commande marquée reçue et stock mis à jour", "Info", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Order marked as received and stock updated", "Info", JOptionPane.INFORMATION_MESSAGE);
         loadCommands(showingPending);
     }
 
     private void cancelSelectedCommande() {
         int sel = commandsTable.getSelectedRow();
         if (sel < 0) {
-            JOptionPane.showMessageDialog(this, "Veuillez selectionner une commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select an order", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         int modelRow = commandsTable.convertRowIndexToModel(sel);
         Object idObj = commandsTableModel.getValueAt(modelRow, 0);
         if (idObj == null) {
-            JOptionPane.showMessageDialog(this, "Impossible de lire l'identifiant de la commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Unable to read order ID", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         int idCommande;
         try { idCommande = Integer.parseInt(idObj.toString()); } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Identifiant de commande invalide", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid order ID", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         Object statutObj = commandsTableModel.getValueAt(modelRow, 4);
         String statut = statutObj == null ? "" : statutObj.toString();
-        if (!"en attente".equalsIgnoreCase(statut)) {
-            JOptionPane.showMessageDialog(this, "Commande déjà reçue ou annulée", "Info", JOptionPane.INFORMATION_MESSAGE);
+        if (!"pending".equalsIgnoreCase(statut)) {
+            JOptionPane.showMessageDialog(this, "Order already received or cancelled", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         // Confirm before canceling
-        int confirm = JOptionPane.showConfirmDialog(this, "Êtes-vous sûr de vouloir annuler cette commande?", "Confirmer annulation", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to cancel this order?", "Confirm Cancellation", JOptionPane.YES_NO_OPTION);
         if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
 
         // Update status to cancelled
-        boolean ok = commandDao.updateStatut(idCommande, "annulée");
+        boolean ok = commandDao.updateStatut(idCommande, "cancelled");
         if (!ok) {
-            JOptionPane.showMessageDialog(this, "Erreur lors de l'annulation de la commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error cancelling order", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "Commande annulée avec succès", "Info", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Order cancelled successfully", "Info", JOptionPane.INFORMATION_MESSAGE);
         loadCommands(showingPending);
     }
 
     private void deleteSelectedCommande() {
         int sel = commandsTable.getSelectedRow();
         if (sel < 0) {
-            JOptionPane.showMessageDialog(this, "Veuillez selectionner une commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select an order", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         int modelRow = commandsTable.convertRowIndexToModel(sel);
         Object idObj = commandsTableModel.getValueAt(modelRow, 0);
         if (idObj == null) {
-            JOptionPane.showMessageDialog(this, "Impossible de lire l'identifiant de la commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Unable to read order ID", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         int idCommande;
         try { idCommande = Integer.parseInt(idObj.toString()); } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Identifiant de commande invalide", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid order ID", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         // Confirm before deleting
-        int confirm = JOptionPane.showConfirmDialog(this, "Êtes-vous sûr de vouloir supprimer cette commande? Cette action supprimera aussi les produits associés.", "Confirmer suppression", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this order? This action will also delete associated products.", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
         if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
 
-        // Delete the commande
+        // Delete the order
         boolean ok = commandDao.deleteCommande(idCommande);
         if (!ok) {
-            JOptionPane.showMessageDialog(this, "Erreur lors de la suppression de la commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error deleting order", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "Commande supprimée avec succès", "Info", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Order deleted successfully", "Info", JOptionPane.INFORMATION_MESSAGE);
         loadCommands(showingPending);
     }
 
@@ -510,7 +510,7 @@ public class ViewCommandPanel extends JPanel {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur en chargeant commandes: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading orders: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

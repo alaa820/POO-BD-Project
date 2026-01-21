@@ -18,10 +18,10 @@ public class MedicinePanel extends JPanel {
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
         
-        JButton allBtn = new JButton("Tous les Médicaments");
-        JButton searchBtn = new JButton("Chercher Médicament");
-        JButton addBtn = new JButton("Ajouter Médicament");
-        JButton modifyBtn = new JButton("Modifier Médicament");
+        JButton allBtn = new JButton("All medicines");
+        JButton searchBtn = new JButton("Search Medicine");
+        JButton addBtn = new JButton("Add Medicine");
+        JButton modifyBtn = new JButton("Modify Médicament");
         
         allBtn.addActionListener(e -> {
             allMedicinePanel.refresh();

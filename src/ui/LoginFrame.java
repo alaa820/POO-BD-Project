@@ -9,11 +9,19 @@ import exception.InvalideUsernameException;
 import dao.EmployeeDao;
 import util.Session;
 import model.Employee;
+
 /**
  * Login frame for the Pharmacy Management System.
  * Handles user authentication and navigation to the main application.
  */
 public class LoginFrame extends JFrame {
+    
+    // Color Palette
+    private static final Color COLOR_BACKGROUND = new Color(0xEDAFB8);  // Light pink
+    private static final Color COLOR_PANEL = new Color(0xF7E1D7);       // Cream
+    private static final Color COLOR_ACCENT = new Color(0xDEDBD2);      // Light gray
+    private static final Color COLOR_PRIMARY = new Color(0xB0C4B1);     // Sage green
+    private static final Color COLOR_DARK = new Color(0x4A5759);        // Dark blue-gray
     
     private JTextField usernameField;
     private JPasswordField passwordField;
@@ -22,13 +30,13 @@ public class LoginFrame extends JFrame {
     public LoginFrame() {
         super("Pharmacy Management System - Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 300);
+        setSize(450, 350);
         setLocationRelativeTo(null);
         setResizable(false);
         
-        // Create main panel
+        // Create main panel with gradient effect
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(245, 245, 245));
+        mainPanel.setBackground(COLOR_BACKGROUND);
         
         // Create login panel
         JPanel loginPanel = createLoginPanel();
@@ -42,8 +50,11 @@ public class LoginFrame extends JFrame {
      */
     private JPanel createLoginPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(new Color(245, 245, 245));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        panel.setBackground(COLOR_PANEL);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COLOR_PRIMARY, 2),
+            BorderFactory.createEmptyBorder(30, 40, 30, 40)
+        ));
         
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
@@ -51,8 +62,9 @@ public class LoginFrame extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
         // Title
-        JLabel titleLabel = new JLabel("Pharmacy Management System");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        JLabel titleLabel = new JLabel("Pharmacy Management");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        titleLabel.setForeground(COLOR_DARK);
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
@@ -61,21 +73,30 @@ public class LoginFrame extends JFrame {
         
         // Subtitle
         JLabel subtitleLabel = new JLabel("Please login to continue");
-        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        subtitleLabel.setForeground(COLOR_DARK.brighter());
         gbc.gridy = 1;
+        gbc.insets = new Insets(5, 10, 15, 10);
         panel.add(subtitleLabel, gbc);
         
         // Username label and field
         gbc.gridy = 2;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new Insets(10, 10, 10, 10);
         JLabel usernameLabel = new JLabel("Username:");
-        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        usernameLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        usernameLabel.setForeground(COLOR_DARK);
         panel.add(usernameLabel, gbc);
         
         gbc.gridx = 1;
-        usernameField = new JTextField(15);
-        usernameField.setFont(new Font("Arial", Font.PLAIN, 12));
+        usernameField = new JTextField(18);
+        usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        usernameField.setBackground(Color.WHITE);
+        usernameField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COLOR_PRIMARY, 1),
+            BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        ));
         usernameField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -89,12 +110,18 @@ public class LoginFrame extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 3;
         JLabel passwordLabel = new JLabel("Password:");
-        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        passwordLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        passwordLabel.setForeground(COLOR_DARK);
         panel.add(passwordLabel, gbc);
         
         gbc.gridx = 1;
-        passwordField = new JPasswordField(15);
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 12));
+        passwordField = new JPasswordField(18);
+        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        passwordField.setBackground(Color.WHITE);
+        passwordField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(COLOR_PRIMARY, 1),
+            BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        ));
         passwordField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -109,23 +136,54 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         messageLabel = new JLabel("");
-        messageLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-        messageLabel.setForeground(Color.RED);
+        messageLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        messageLabel.setForeground(new Color(200, 50, 50));
+        messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         panel.add(messageLabel, gbc);
         
         // Buttons panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        buttonPanel.setBackground(new Color(245, 245, 245));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        buttonPanel.setBackground(COLOR_PANEL);
         
         JButton loginButton = new JButton("Login");
-        loginButton.setFont(new Font("Arial", Font.BOLD, 12));
-        loginButton.setPreferredSize(new Dimension(100, 35));
+        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        loginButton.setPreferredSize(new Dimension(110, 40));
+        loginButton.setBackground(COLOR_PRIMARY);
+        loginButton.setForeground(COLOR_DARK);
+        loginButton.setFocusPainted(false);
+        loginButton.setBorderPainted(false);
+        loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         loginButton.addActionListener(e -> handleLogin());
         
+        // Add hover effect
+        loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                loginButton.setBackground(COLOR_PRIMARY.darker());
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                loginButton.setBackground(COLOR_PRIMARY);
+            }
+        });
+        
         JButton exitButton = new JButton("Exit");
-        exitButton.setFont(new Font("Arial", Font.BOLD, 12));
-        exitButton.setPreferredSize(new Dimension(100, 35));
+        exitButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        exitButton.setPreferredSize(new Dimension(110, 40));
+        exitButton.setBackground(COLOR_ACCENT);
+        exitButton.setForeground(COLOR_DARK);
+        exitButton.setFocusPainted(false);
+        exitButton.setBorderPainted(false);
+        exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         exitButton.addActionListener(e -> System.exit(0));
+        
+        // Add hover effect
+        exitButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                exitButton.setBackground(COLOR_ACCENT.darker());
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                exitButton.setBackground(COLOR_ACCENT);
+            }
+        });
         
         buttonPanel.add(loginButton);
         buttonPanel.add(exitButton);

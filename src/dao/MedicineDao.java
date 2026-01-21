@@ -369,4 +369,43 @@ return false;
 
         return list;
     }
+    
+    public List<Medicine> getMedicineBySupplier(int supplierID){
+    	List<Medicine> medecines= new ArrayList<>();; // Initialize your list here
+    			try {
+    				Connection con  = DatabaseConnection.getConnection();
+					// Sample query execution (pseudo-code)
+					String query = "SELECT * FROM medicament WHERE id_fournisseur = ?";
+					PreparedStatement pst = con.prepareStatement(query);
+					pst.setInt(1, supplierID);
+	
+	
+	
+					ResultSet rs = pst.executeQuery();
+					
+					
+					while(rs.next()) {
+						String codeBarre = rs.getString("code_barre");
+						String nom = rs.getString("nom");
+						double prixAchat = rs.getDouble("prix_achat");
+						double prixVente = rs.getDouble("prix_vente");
+						double tauxTVA = rs.getDouble("taux_TVA");
+						String dosage = rs.getString("dosage");
+						int quantite = rs.getInt("quantite");
+						int seuil = rs.getInt("seuil");
+						String formePharmaceutique = rs.getString("forme_pharmaceutique");
+						String emplacement = rs.getString("emplacement");
+						boolean necessitePrescription = rs.getBoolean("necessite_prescription");
+						Supplier supplier = new SupplierDao().getSupplierById(supplierID);
+					Medicine medicine = new Medicine(codeBarre, nom, prixAchat, prixVente, tauxTVA, dosage, quantite, seuil, formePharmaceutique, emplacement, necessitePrescription, supplier);
+					medecines.add(medicine);
+					
+					}
+				}
+					catch(Exception e) {
+									e.printStackTrace();
+				
+    			}
+    			return medecines;
+    }
 }

@@ -17,9 +17,9 @@ public class SupplierPanel extends JPanel {
         // Toolbar
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
-        JButton allBtn = new JButton("Tous Fournisseurs");
-        JButton searchBtn = new JButton("Chercher Fournisseur");
-        JButton addBtn = new JButton("Ajouter Fournisseur");
+        JButton allBtn = new JButton("TAll suppliers");
+        JButton searchBtn = new JButton("Search Supplier");
+        JButton addBtn = new JButton("Add Supplier");
 
         allBtn.addActionListener(e -> cardLayout.show(cardPanel, "ALL"));
         searchBtn.addActionListener(e -> cardLayout.show(cardPanel, "SEARCH"));

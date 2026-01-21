@@ -38,7 +38,7 @@ public class SearchMedicinePanel extends JPanel {
         add(topPanel, BorderLayout.NORTH);
 
         /* ---------- TABLE ---------- */
-        String[] columns = {"Code Barre", "Nom", "Fournisseur", "Supprimer"};
+        String[] columns = {"BarCode", "Name", "Supplier", "Delete"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -50,16 +50,16 @@ public class SearchMedicinePanel extends JPanel {
         table.setRowHeight(30);
 
         // Renderer (shows button)
-        table.getColumn("Supprimer").setCellRenderer((tbl, value, isSelected, hasFocus, row, col) -> {
-            JButton btn = new JButton("Supprimer");
+        table.getColumn("Delete").setCellRenderer((tbl, value, isSelected, hasFocus, row, col) -> {
+            JButton btn = new JButton("Delete");
             btn.setBackground(Color.RED);
             btn.setForeground(Color.WHITE);
             return btn;
         });
 
         // Editor (handles click)
-        table.getColumn("Supprimer").setCellEditor(new DefaultCellEditor(new JCheckBox()) {
-            private final JButton btn = new JButton("Supprimer");
+        table.getColumn("Delete").setCellEditor(new DefaultCellEditor(new JCheckBox()) {
+            private final JButton btn = new JButton("Delete");
             private int row;
 
             {
@@ -71,7 +71,7 @@ public class SearchMedicinePanel extends JPanel {
 
                     int confirm = JOptionPane.showConfirmDialog(
                             SearchMedicinePanel.this,
-                            "Supprimer le médicament " + codeBarre + " ?",
+                            "Delete medicine " + codeBarre + " ?",
                             "Confirmation",
                             JOptionPane.YES_NO_OPTION
                     );
@@ -81,13 +81,13 @@ public class SearchMedicinePanel extends JPanel {
 
                     	if (success) {
                     	    tableModel.removeRow(row);
-                    	    System.out.println("Delete success for code barre: " + codeBarre);
+                    	    System.out.println("Delete succeeded for barCode: " + codeBarre);
                     	} else {
-                    	    System.out.println("Delete failed for code barre: " + codeBarre);
+                    	    System.out.println("Delete failed for barCode: " + codeBarre);
                     	    JOptionPane.showMessageDialog(
                     	            SearchMedicinePanel.this,
-                    	            "Échec de suppression du médicament.",
-                    	            "Erreur",
+                    	            "Deletion failed.",
+                    	            "Error",
                     	            JOptionPane.ERROR_MESSAGE
                     	    );
                     	}
@@ -121,7 +121,7 @@ public class SearchMedicinePanel extends JPanel {
         );
 
         if (results == null || results.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Aucun médicament trouvé.");
+            JOptionPane.showMessageDialog(this, "No medicine found");
             return;
         }
 

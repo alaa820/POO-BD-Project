@@ -53,26 +53,26 @@ public class AddMedicinePanel extends JPanel {
         int row = 0;
 
         // Basic information
-        addFormField(panel, gbc, row++, "Code Barre :", codeBarreField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Nom :", nomField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Dosage :", dosageField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Forme Pharmaceutique :", formePharmaceutiqueField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Barcode:", codeBarreField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Name:", nomField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Dosage:", dosageField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Pharmaceutical Form:", formePharmaceutiqueField = new JTextField(20));
 
         // Pricing
-        addFormField(panel, gbc, row++, "Prix d'Achat :", prixAchatField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Prix de Vente :", prixVenteField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Taux TVA (%) :", tauxTVAField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Purchase Price:", prixAchatField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Sale Price:", prixVenteField = new JTextField(20));
+        addFormField(panel, gbc, row++, "VAT Rate (%):", tauxTVAField = new JTextField(20));
 
         // Quantity and storage
-        addFormField(panel, gbc, row++, "Quantité :", quantiteField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Seuil :", seuilField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Emplacement :", emplacementField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Quantity:", quantiteField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Threshold:", seuilField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Location:", emplacementField = new JTextField(20));
 
         // Prescription requirement
         gbc.gridx = 0;
         gbc.gridy = row++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        prescriptionCheckBox = new JCheckBox("Nécessite Prescription");
+        prescriptionCheckBox = new JCheckBox("Requires Prescription");
         prescriptionCheckBox.setFont(new Font("Arial", Font.PLAIN, 11));
         panel.add(prescriptionCheckBox, gbc);
 
@@ -87,7 +87,7 @@ public class AddMedicinePanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        JButton addBtn = new JButton("Ajouter Médicament");
+        JButton addBtn = new JButton("Add Medicine");
         addBtn.setFont(new Font("Arial", Font.BOLD, 12));
         addBtn.setPreferredSize(new Dimension(160, 35));
         addBtn.addActionListener(e -> handleAddMedicine());
@@ -109,7 +109,7 @@ public class AddMedicinePanel extends JPanel {
         gbc.gridy = row;
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        JLabel supplierLabel = new JLabel("Fournisseur :");
+        JLabel supplierLabel = new JLabel("Supplier:");
         supplierLabel.setFont(new Font("Arial", Font.BOLD, 12));
         panel.add(supplierLabel, gbc);
 
@@ -235,7 +235,7 @@ public class AddMedicinePanel extends JPanel {
             boolean necessitePrescription = prescriptionCheckBox.isSelected();
 
             if (selectedSupplier == null) {
-                JOptionPane.showMessageDialog(this, "Veuillez sélectionner un fournisseur !");
+                JOptionPane.showMessageDialog(this, "Please select a supplier!");
                 return;
             }
             try {
@@ -243,7 +243,7 @@ public class AddMedicinePanel extends JPanel {
                         dosage, quantite, seuil, formePharmaceutique, 
                         emplacement, necessitePrescription, selectedSupplier);
             	
-                JOptionPane.showMessageDialog(this, "medicament ajouté avec succès !");
+                JOptionPane.showMessageDialog(this, "Medicine added successfully!");
                 clearForm();
             	} 
             catch(DataMissingException e)
@@ -252,12 +252,12 @@ public class AddMedicinePanel extends JPanel {
             }
             catch(CodeBarreExistsException e)
             {
-            	JOptionPane.showMessageDialog(this, "Medicament existe deja !"," Medicine Error",JOptionPane.ERROR_MESSAGE);}
+            	JOptionPane.showMessageDialog(this, "Medicine already exists!", "Medicine Error", JOptionPane.ERROR_MESSAGE);}
             	
        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs correctement !");
+            JOptionPane.showMessageDialog(this, "Please fill all fields correctly!");
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erreur : " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
         
     }

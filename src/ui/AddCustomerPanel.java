@@ -51,28 +51,28 @@ public class AddCustomerPanel extends JPanel {
         int row = 0;
         
         // Nom
-        addFormField(panel, gbc, row++, "Nom:", nomField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Name:", nomField = new JTextField(20));
         
         // Prenom
-        addFormField(panel, gbc, row++, "Prenom:", prenomField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Surname:", prenomField = new JTextField(20));
         
         // Date Naissance (format: YYYY-MM-DD)
-        addFormField(panel, gbc, row++, "Date Naissance (YYYY-MM-DD):", dateNaissanceField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Birth Date (YYYY-MM-DD):", dateNaissanceField = new JTextField(20));
         
         // Sexe
         JPanel sexePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        sexeCombo = new JComboBox<>(new String[]{"M", "F", "Autre"});
+        sexeCombo = new JComboBox<>(new String[]{"M", "F"});
         sexePanel.add(sexeCombo);
-        addFormFieldPanel(panel, gbc, row++, "Sexe:", sexePanel);
+        addFormFieldPanel(panel, gbc, row++, "Gender:", sexePanel);
         
         // Telephone
-        addFormField(panel, gbc, row++, "Telephone:", telephoneField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Phone Number:", telephoneField = new JTextField(20));
         
         // Email
         addFormField(panel, gbc, row++, "Email:", emailField = new JTextField(20));
         
         // Adresse
-        addFormField(panel, gbc, row++, "Adresse:", adresseField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Address:", adresseField = new JTextField(20));
         
         // Description
         gbc.gridx = 0;

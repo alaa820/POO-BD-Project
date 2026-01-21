@@ -8,7 +8,7 @@ import dao.EmployeeDao;
 import model.Employee;
 
 /**
- * Panel to search employees by nom, prenom, and/or username
+ * Panel to search employees by last name, first name, and/or username
  */
 public class SearchEmployeePanel extends JPanel {
     
@@ -33,10 +33,10 @@ public class SearchEmployeePanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
-        // Nom label and field
+        // Last Name label and field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        JLabel nomLabel = new JLabel("Nom (optional):");
+        JLabel nomLabel = new JLabel("Last Name (optional):");
         nomLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchPanel.add(nomLabel, gbc);
         
@@ -46,10 +46,10 @@ public class SearchEmployeePanel extends JPanel {
         nomField.addActionListener(e -> performSearch());
         searchPanel.add(nomField, gbc);
         
-        // Prenom label and field
+        // First Name label and field
         gbc.gridx = 1;
         gbc.gridy = 0;
-        JLabel prenomLabel = new JLabel("Prenom (optional):");
+        JLabel prenomLabel = new JLabel("First Name (optional):");
         prenomLabel.setFont(new Font("Arial", Font.BOLD, 12));
         searchPanel.add(prenomLabel, gbc);
         
@@ -83,7 +83,7 @@ public class SearchEmployeePanel extends JPanel {
         searchPanel.add(searchBtn, gbc);
         
         // Create results table
-        String[] columnNames = {"Username", "Nom", "Prenom", "Phone", "Adresse", "Access"};
+        String[] columnNames = {"Username", "Last Name", "First Name", "Phone", "Address", "Access"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -122,7 +122,6 @@ public class SearchEmployeePanel extends JPanel {
         }
         
         tableModel.setRowCount(0);
-        // TODO: Call employeeDao.searchEmployees(nom, prenom, username)
         List<Employee> results = employeeDao.searchEmployees(nom, prenom, username);
         
         if (results.isEmpty()) {

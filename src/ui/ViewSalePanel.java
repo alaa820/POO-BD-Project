@@ -90,7 +90,7 @@ public class ViewSalePanel extends JPanel {
 
     private JPanel createSalesPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBorder(BorderFactory.createTitledBorder("Sales (Ventes)"));
+        panel.setBorder(BorderFactory.createTitledBorder("Sales "));
 
         // Create table
         String[] columns = {"ID Vente", "Client Name", "Date", "Total Price"};

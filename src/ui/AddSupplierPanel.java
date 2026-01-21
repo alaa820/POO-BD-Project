@@ -39,17 +39,17 @@ public class AddSupplierPanel extends JPanel {
         int row = 0;
 
         // Fields
-        addFormField(panel, gbc, row++, "Nom :", nomField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Prénom :", prenomField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Société :", societeField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Email :", emailField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Téléphone :", telField = new JTextField(20));
-        addFormField(panel, gbc, row++, "Adresse :", adresseField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Last Name:", nomField = new JTextField(20));
+        addFormField(panel, gbc, row++, "First Name:", prenomField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Company:", societeField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Email:", emailField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Phone:", telField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Address:", adresseField = new JTextField(20));
 
         // Description
         gbc.gridx = 0;
         gbc.gridy = row++;
-        JLabel descLabel = new JLabel("Description :");
+        JLabel descLabel = new JLabel("Description:");
         descLabel.setFont(new Font("Arial", Font.BOLD, 12));
         panel.add(descLabel, gbc);
 
@@ -69,7 +69,7 @@ public class AddSupplierPanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        JButton addBtn = new JButton("Ajouter Fournisseur");
+        JButton addBtn = new JButton("Add Supplier");
         addBtn.setFont(new Font("Arial", Font.BOLD, 12));
         addBtn.setPreferredSize(new Dimension(140, 35));
         addBtn.addActionListener(e -> handleAddSupplier());
@@ -111,14 +111,14 @@ public class AddSupplierPanel extends JPanel {
         );
         try {
             supplierDao.addSupplier(s);
-            JOptionPane.showMessageDialog(this, "Fournisseur ajouté avec succès !");
+            JOptionPane.showMessageDialog(this, "Supplier added successfully!");
             clearForm();}
             catch(DataMissingException e)
         {
-            	JOptionPane.showMessageDialog(this,e.getMessage(),"Erreur d'ajout" ,JOptionPane.ERROR_MESSAGE);
+            	JOptionPane.showMessageDialog(this, e.getMessage(), "Add Error", JOptionPane.ERROR_MESSAGE);
         }
         catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Erreur SQL : " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "SQL Error: " + e.getMessage());
         }
     }
 

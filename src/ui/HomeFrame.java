@@ -12,6 +12,12 @@ import util.Session;
  */
 public class HomeFrame extends JFrame {
     
+    // 🎨 COLOR PALETTE - Change these to customize the entire UI
+    public static final Color COLOR_DARK_GRAY = new Color(0x4A5759);//COLOR_DARK_GRAY    = #4A5759      // Dark Pink - backgrounds
+    public static final Color COLOR_CREAM = new Color(0xF7A8C4);        // Light Pink
+    public static final Color COLOR_LIGHT_GRAY    = new Color(0xDEDBD2 ); // Medium-Light Pink
+    public static final Color COLOR_SAGE_GREEN = new Color(0xB0C4B1);       // Medium Pink
+    public static final Color COLOR_LIGHT_PINK = new Color(0xEDAFB8); 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel contentPanel = new JPanel(cardLayout);
     
@@ -46,7 +52,7 @@ public class HomeFrame extends JFrame {
      */
     private JPanel createTopPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(0xAC1754)); // Dark pink from palette
+        panel.setBackground(COLOR_DARK_GRAY);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         
         // Get user name from session
@@ -57,12 +63,12 @@ public class HomeFrame extends JFrame {
         // Create greeting label
         JLabel greetingLabel = new JLabel("Hello, " + userName);
         greetingLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        greetingLabel.setForeground(new Color(0xF7A8C4)); // Light pink from palette
+        greetingLabel.setForeground(COLOR_LIGHT_PINK);
         
         // Create role label
         JLabel roleLabel = new JLabel("Role: " + userRole);
         roleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        roleLabel.setForeground(new Color(0xF37199)); // Medium pink from palette
+        roleLabel.setForeground(COLOR_CREAM);
         
         // Left side with greeting and role
         JPanel leftSide = new JPanel();
@@ -75,23 +81,24 @@ public class HomeFrame extends JFrame {
         // Right side with logout button
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        logoutBtn.setBackground(new Color(0xE53888)); // Bright pink from palette
-        logoutBtn.setForeground(Color.WHITE);
+        logoutBtn.setBackground(COLOR_SAGE_GREEN);
+        logoutBtn.setForeground(COLOR_DARK_GRAY);
         logoutBtn.setFocusPainted(false);
         logoutBtn.setBorderPainted(false);
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> handleLogout());
         
         // Add hover effect to logout button
+        final Color logoutColor = COLOR_SAGE_GREEN;
         logoutBtn.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                logoutBtn.setBackground(new Color(0xE53888).darker());
+                logoutBtn.setBackground(logoutColor.darker());
             }
             
             @Override
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                logoutBtn.setBackground(new Color(0xE53888));
+                logoutBtn.setBackground(logoutColor);
             }
         });
         
@@ -108,22 +115,21 @@ public class HomeFrame extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        panel.setBackground(new Color(0xAC1754)); // Dark pink from palette
+        panel.setBackground(COLOR_DARK_GRAY);
         
         boolean isAdmin = "ADMIN".equalsIgnoreCase(Session.getUserRole());
         
-        // Button configurations: name, prefix, color
-        // Using palette: F7A8C4 (light), F37199 (medium-light), E53888 (medium), AC1754 (dark - background)
+        // Button configurations: name, prefix, color (all same color now)
         Object[][] buttonConfigs = {
-            {"Dashboard", "■", new Color(0xF7A8C4)},          // Light pink - Dashboard
-            {"Customer", "►", new Color(0xF37199)},           // Medium-light pink - Customer
-            {"Supplier", "►", new Color(0xE88CB3)},           // Lighter variant - Supplier
-            {"Medicine", "►", new Color(0xE53888)},           // Medium pink - Medicine
-            {"Sale", "►", new Color(0xF7A8C4)},               // Light pink - Sale
-            {"ViewSale", "►", new Color(0xF37199)},           // Medium-light pink - ViewSale (same family)
-            {"Command", "►", new Color(0xE53888)},            // Medium pink - Command
-            {"CommandView", "►", new Color(0xDB5B94)},        // Darker variant - CommandView (same family)
-            {"Employee", "►", new Color(0xF7A8C4)}            // Light pink - Employee
+            {"Dashboard", "■", COLOR_SAGE_GREEN},            // Sage green
+            {"Customer", "►", COLOR_SAGE_GREEN},             // Sage green
+            {"Supplier", "►", COLOR_SAGE_GREEN},             // Sage green
+            {"Medicine", "►", COLOR_SAGE_GREEN},             // Sage green
+            {"Sale", "►", COLOR_SAGE_GREEN},                 // Sage green
+            {"ViewSale", "►", COLOR_SAGE_GREEN},             // Sage green
+            {"Command", "►", COLOR_SAGE_GREEN},              // Sage green
+            {"CommandView", "►", COLOR_SAGE_GREEN},          // Sage green
+            {"Employee", "►", COLOR_SAGE_GREEN}              // Sage green
         };
         
         for (Object[] config : buttonConfigs) {
@@ -158,7 +164,7 @@ public class HomeFrame extends JFrame {
         
         // Determine text color based on background brightness
         int brightness = (baseColor.getRed() + baseColor.getGreen() + baseColor.getBlue()) / 3;
-        btn.setForeground(brightness > 150 ? new Color(0xAC1754) : Color.WHITE);
+        btn.setForeground(brightness > 150 ? COLOR_DARK_GRAY : Color.WHITE);
         
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);

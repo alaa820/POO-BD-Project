@@ -71,14 +71,14 @@ public class ModifyMedicinePanel extends JPanel {
     
     private JPanel createSearchPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createTitledBorder("Rechercher Médicament"));
+        panel.setBorder(BorderFactory.createTitledBorder("Search Medicine"));
         panel.setBackground(Color.WHITE);
         
         // Search field
         JPanel searchTop = new JPanel(new FlowLayout(FlowLayout.LEFT));
         searchTop.setBackground(Color.WHITE);
         
-        JLabel label = new JLabel("Nom du médicament:");
+        JLabel label = new JLabel("Medicine Name:");
         label.setFont(new Font("Segoe UI", Font.BOLD, 12));
         searchTop.add(label);
         
@@ -116,7 +116,7 @@ public class ModifyMedicinePanel extends JPanel {
             }
         });
         
-        JButton loadBtn = new JButton("Charger");
+        JButton loadBtn = new JButton("Load");
         loadBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         loadBtn.addActionListener(e -> loadSelectedMedicine());
         
@@ -130,7 +130,7 @@ public class ModifyMedicinePanel extends JPanel {
     
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Informations du Médicament"));
+        panel.setBorder(BorderFactory.createTitledBorder("Medicine Information"));
         panel.setBackground(Color.WHITE);
         
         GridBagConstraints gbc = new GridBagConstraints();
@@ -141,41 +141,41 @@ public class ModifyMedicinePanel extends JPanel {
         int row = 0;
         
         // Code Barre
-        addFormField(panel, gbc, row++, "Code Barre:", codeBarreField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Barcode:", codeBarreField = new JTextField(20));
         codeBarreField.setEditable(false);
         codeBarreField.setBackground(new Color(240, 240, 240));
         
         // Nom
-        addFormField(panel, gbc, row++, "Nom:", nomField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Name:", nomField = new JTextField(20));
         
         // Prix Achat
-        addFormField(panel, gbc, row++, "Prix Achat:", prixAchatField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Purchase Price:", prixAchatField = new JTextField(20));
         
         // Prix Vente
-        addFormField(panel, gbc, row++, "Prix Vente:", prixVenteField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Sale Price:", prixVenteField = new JTextField(20));
         
         // Taux TVA
-        addFormField(panel, gbc, row++, "Taux TVA (%):", tauxTVAField = new JTextField(20));
+        addFormField(panel, gbc, row++, "VAT Rate (%):", tauxTVAField = new JTextField(20));
         
         // Dosage
         addFormField(panel, gbc, row++, "Dosage:", dosageField = new JTextField(20));
         
         // Quantité
-        addFormField(panel, gbc, row++, "Quantité:", quantiteField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Quantity:", quantiteField = new JTextField(20));
         
         // Seuil
-        addFormField(panel, gbc, row++, "Seuil:", seuilField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Threshold:", seuilField = new JTextField(20));
         
         // Forme Pharmaceutique
-        addFormField(panel, gbc, row++, "Forme Pharmaceutique:", formeField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Pharmaceutical Form:", formeField = new JTextField(20));
         
         // Emplacement
-        addFormField(panel, gbc, row++, "Emplacement:", emplacementField = new JTextField(20));
+        addFormField(panel, gbc, row++, "Location:", emplacementField = new JTextField(20));
         
         // Prescription
         gbc.gridx = 0;
         gbc.gridy = row++;
-        JLabel prescLabel = new JLabel("Nécessite Prescription:");
+        JLabel prescLabel = new JLabel("Requires Prescription:");
         prescLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
         panel.add(prescLabel, gbc);
         
@@ -186,7 +186,7 @@ public class ModifyMedicinePanel extends JPanel {
         // Supplier
         gbc.gridx = 0;
         gbc.gridy = row++;
-        JLabel supplierLabel = new JLabel("Fournisseur:");
+        JLabel supplierLabel = new JLabel("Supplier:");
         supplierLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
         panel.add(supplierLabel, gbc);
         
@@ -204,12 +204,12 @@ public class ModifyMedicinePanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         buttonPanel.setBackground(Color.WHITE);
         
-        JButton updateBtn = new JButton("Confirmer Modifications");
+        JButton updateBtn = new JButton("Confirm Changes");
         updateBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         updateBtn.setPreferredSize(new Dimension(180, 35));
         updateBtn.addActionListener(e -> handleUpdate());
         
-        JButton cancelBtn = new JButton("Annuler");
+        JButton cancelBtn = new JButton("Cancel");
         cancelBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         cancelBtn.setPreferredSize(new Dimension(120, 35));
         cancelBtn.addActionListener(e -> clearForm());
@@ -243,7 +243,7 @@ public class ModifyMedicinePanel extends JPanel {
             return;
         }
         
-        List<Medicine> medicines = medicineDao.searchMedicines(null,query,null );
+        List<Medicine> medicines = medicineDao.searchMedicines(null, query, null);
         for (Medicine med : medicines) {
             suggestionModel.addElement(med.getNom() + " (" + med.getCodeBarre() + ")");
         }
@@ -253,8 +253,8 @@ public class ModifyMedicinePanel extends JPanel {
         String selected = suggestionList.getSelectedValue();
         if (selected == null || selected.isEmpty()) {
             JOptionPane.showMessageDialog(this, 
-                "Veuillez sélectionner un médicament", 
-                "Erreur", 
+                "Please select a medicine", 
+                "Error", 
                 JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -265,8 +265,8 @@ public class ModifyMedicinePanel extends JPanel {
         selectedMedicine = medicineDao.getMedecineByCode(codeBarre);
         if (selectedMedicine == null) {
             JOptionPane.showMessageDialog(this, 
-                "Médicament introuvable", 
-                "Erreur", 
+                "Medicine not found", 
+                "Error", 
                 JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -309,8 +309,8 @@ public class ModifyMedicinePanel extends JPanel {
     private void handleUpdate() {
         if (selectedMedicine == null) {
             JOptionPane.showMessageDialog(this, 
-                "Veuillez d'abord charger un médicament", 
-                "Erreur", 
+                "Please load a medicine first", 
+                "Error", 
                 JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -327,24 +327,24 @@ public class ModifyMedicinePanel extends JPanel {
             String forme = formeField.getText().trim();
             String emplacement = emplacementField.getText().trim();
             boolean prescription = prescriptionCheckBox.isSelected();
-                        // Get supplier ID
+            
+            // Get supplier ID
             String supplierStr = (String) supplierCombo.getSelectedItem();
             int idFournisseur = Integer.parseInt(
                 supplierStr.substring(supplierStr.lastIndexOf("(") + 1, supplierStr.lastIndexOf(")"))
             );
             Supplier supplier = supplierDao.getSupplierById(idFournisseur);
-            Medicine medChanged = new Medicine( selectedMedicine.getCodeBarre(), nom, prixAchat, prixVente, 
-					   tauxTVA, dosage, quantite, seuil, forme, 
-					   emplacement, prescription, supplier);
-			
+            Medicine medChanged = new Medicine(selectedMedicine.getCodeBarre(), nom, prixAchat, prixVente, 
+                   tauxTVA, dosage, quantite, seuil, forme, 
+                   emplacement, prescription, supplier);
+            
             // Update medicine
-           
             boolean success = medicineDao.updateMedicine(medChanged);
             
             if (success) {
                 JOptionPane.showMessageDialog(this, 
-                    "Médicament modifié avec succès!", 
-                    "Succès", 
+                    "Medicine modified successfully!", 
+                    "Success", 
                     JOptionPane.INFORMATION_MESSAGE);
                 clearForm();
                 if (parentPanel != null) {
@@ -352,21 +352,21 @@ public class ModifyMedicinePanel extends JPanel {
                 }
             } else {
                 JOptionPane.showMessageDialog(this, 
-                    "Erreur lors de la modification", 
-                    "Erreur", 
+                    "Error during modification", 
+                    "Error", 
                     JOptionPane.ERROR_MESSAGE);
             }
             
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, 
-                "Veuillez entrer des valeurs valides pour les champs numériques", 
-                "Erreur de Format", 
+                "Please enter valid values for numeric fields", 
+                "Format Error", 
                 JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, 
-                "Erreur: " + ex.getMessage(), 
-                "Erreur", 
+                "Error: " + ex.getMessage(), 
+                "Error", 
                 JOptionPane.ERROR_MESSAGE);
         }
     }

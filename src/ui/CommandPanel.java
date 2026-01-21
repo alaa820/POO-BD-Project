@@ -42,7 +42,7 @@ public class CommandPanel extends JPanel {
     private SupplierDao supplierDao;
     private MedicineDao medicineDao;
     private CommandDao commandDao;
-    private CommandItemDao commandItemDao  = new CommandItemDao();;
+    private CommandItemDao commandItemDao = new CommandItemDao();
     
 
     public CommandPanel() {
@@ -65,7 +65,7 @@ public class CommandPanel extends JPanel {
 
     private JPanel createInputPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(BorderFactory.createTitledBorder("Créer Commande"));
+        panel.setBorder(BorderFactory.createTitledBorder("Create Order"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(6,6,6,6);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -74,7 +74,7 @@ public class CommandPanel extends JPanel {
         int row = 0;
 
         gbc.gridx = 0; gbc.gridy = row;
-        panel.add(new JLabel("Fournisseur:"), gbc);
+        panel.add(new JLabel("Supplier:"), gbc);
         gbc.gridx = 1; gbc.gridy = row++;
         fournisseurCombo = new JComboBox<>();
         fournisseurCombo.setPreferredSize(new Dimension(300,24));
@@ -82,25 +82,25 @@ public class CommandPanel extends JPanel {
         fournisseurCombo.addActionListener(e -> onFournisseurSelected());
 
         gbc.gridx = 0; gbc.gridy = row;
-        panel.add(new JLabel("Medicament:"), gbc);
+        panel.add(new JLabel("Medicine:"), gbc);
         gbc.gridx = 1; gbc.gridy = row++;
         medicineCombo = new JComboBox<>();
         medicineCombo.setPreferredSize(new Dimension(300,24));
         panel.add(medicineCombo, gbc);
 
         gbc.gridx = 0; gbc.gridy = row;
-        panel.add(new JLabel("Quantite:"), gbc);
+        panel.add(new JLabel("Quantity:"), gbc);
         gbc.gridx = 1; gbc.gridy = row;
         quantitySpinner = new JSpinner(new SpinnerNumberModel(1,1,Integer.MAX_VALUE,1));
         panel.add(quantitySpinner, gbc);
 
         gbc.gridx = 2; gbc.gridy = row;
-        JButton addBtn = new JButton("Ajouter au Panier");
+        JButton addBtn = new JButton("Add to Cart");
         addBtn.addActionListener(e -> handleAddToCart());
         panel.add(addBtn, gbc);
 
         gbc.gridx = 3; gbc.gridy = row++;
-        btnClearSelection = new JButton("Annuler");
+        btnClearSelection = new JButton("Cancel");
         btnClearSelection.addActionListener(e -> clearSelection());
         panel.add(btnClearSelection, gbc);
 
@@ -109,9 +109,9 @@ public class CommandPanel extends JPanel {
 
     private JPanel createCartPanel() {
         JPanel panel = new JPanel(new BorderLayout(6,6));
-        panel.setBorder(BorderFactory.createTitledBorder("Panier"));
+        panel.setBorder(BorderFactory.createTitledBorder("Cart"));
 
-        String[] cols = {"Medicament","Quantite","Prix Unitaire","Total"};
+        String[] cols = {"Medicine","Quantity","Unit Price","Total"};
         cartTableModel = new DefaultTableModel(cols,0) { public boolean isCellEditable(int r,int c){return false;} };
         cartTable = new JTable(cartTableModel);
         panel.add(new JScrollPane(cartTable), BorderLayout.CENTER);
@@ -121,7 +121,7 @@ public class CommandPanel extends JPanel {
         bottom.add(totalLabel, BorderLayout.WEST);
 
         JPanel right = new JPanel();
-        JButton validate = new JButton("Valider Commande");
+        JButton validate = new JButton("Validate Order");
         validate.addActionListener(e -> handleValidateCommande());
         right.add(validate);
         bottom.add(right, BorderLayout.EAST);
@@ -152,23 +152,22 @@ public class CommandPanel extends JPanel {
         Integer idFournisseur = fournisseurMap.get(societe);
         if (idFournisseur == null) return;
 
-        try (Connection con = DatabaseConnection.getConnection()) {
-            String sql = "SELECT nom, code_barre FROM medicament WHERE id_fournisseur = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, idFournisseur);
-            ResultSet rs = ps.executeQuery();
-            int found = 0;
-            while (rs.next()) {
-                String nom = rs.getString("nom");
-                String codeBarre = rs.getString("code_barre");
+        try {
+            List<Medicine> medicines = medicineDao.getMedicineBySupplier(idFournisseur);
+            
+            for (Medicine medicine : medicines) {
+                String nom = medicine.getNom();
+                String codeBarre = medicine.getCodeBarre();
                 medicineCombo.addItem(nom);
                 medicineCodeMap.put(nom, codeBarre);
-                found++;
             }
-            if (found > 0) medicineCombo.setSelectedIndex(0);
+            
+            if (!medicines.isEmpty()) {
+                medicineCombo.setSelectedIndex(0);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Erreur en chargeant medicaments: " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading medicines: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -184,23 +183,23 @@ public class CommandPanel extends JPanel {
     private void handleAddToCart() {
         String medName = (String) medicineCombo.getSelectedItem();
         if (medName == null) {
-            JOptionPane.showMessageDialog(this, "Veuillez selectionner un medicament", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a medicine", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         String codeBarre = medicineCodeMap.get(medName);
         if (codeBarre == null) {
-            JOptionPane.showMessageDialog(this, "Code barre introuvable pour le medicament", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Barcode not found for the medicine", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         Medicine med = medicineDao.getMedecineByCode(codeBarre);
         if (med == null) {
-            JOptionPane.showMessageDialog(this, "Medicament introuvable en base", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Medicine not found in database", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         int quantity = (Integer) quantitySpinner.getValue();
         if (quantity <= 0) {
-            JOptionPane.showMessageDialog(this, "Quantite doit etre > 0", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Quantity must be > 0", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -230,17 +229,17 @@ public class CommandPanel extends JPanel {
 
     private void handleValidateCommande() {
         if (cartItems.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Le panier est vide", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Cart is empty", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         String societe = (String) fournisseurCombo.getSelectedItem();
         if (societe == null) {
-            JOptionPane.showMessageDialog(this, "Veuillez selectionner un fournisseur", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a supplier", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         Integer idFournisseur = fournisseurMap.get(societe);
         if (idFournisseur == null) {
-            JOptionPane.showMessageDialog(this, "Fournisseur invalide", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid supplier", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -250,14 +249,14 @@ public class CommandPanel extends JPanel {
         }
 
         // build Command model and create via DAO
-        Command cmd = new Command(null, null, "en attente", totalPrix, new SupplierDao().getSupplierById(idFournisseur));
+        Command cmd = new Command(null, null, "pending", totalPrix, new SupplierDao().getSupplierById(idFournisseur));
         int idCommande = commandDao.createCommande(cmd);
         if (idCommande <= 0) {
-            JOptionPane.showMessageDialog(this, "Impossible de creer la commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Unable to create order", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 		cmd.setIdCommande(idCommande);
-        // insert each produit individually
+        // insert each product individually
         boolean failed = false;
         for (CommandItem it : cartItems) {
             it.setC(cmd);
@@ -270,11 +269,11 @@ public class CommandPanel extends JPanel {
             }
         }
         if (failed) {
-            JOptionPane.showMessageDialog(this, "Erreur lors de l'insertion des produits de la commande", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error inserting order items", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "Commande enregistre avec succes", "Succes", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Order saved successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
         cartItems.clear();
         refreshCartTable();
     }

@@ -269,7 +269,7 @@ public class SalePanel extends JPanel {
         panel.add(new JScrollPane(cartTable), BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        totalLabel = new JLabel("Total: 0.00 DZD");
+        totalLabel = new JLabel("Total: 0.00 DT");
         bottomPanel.add(totalLabel, BorderLayout.WEST);
 
         JPanel btnPanel = new JPanel();
@@ -390,7 +390,7 @@ public class SalePanel extends JPanel {
         JOptionPane.showMessageDialog(this,
                 "Sale completed successfully!\n\n" +
                         "Customer: " + selectedCustomer.getNom() + " " + selectedCustomer.getPrenom() + "\n" +
-                        "Total Amount: " + String.format("%.2f", total) + " DZD\n" +
+                        "Total Amount: " + String.format("%.2f", total) + " DT\n" +
                         "Items: " + cartItems.size(),
                 "Checkout Success", JOptionPane.INFORMATION_MESSAGE);
 
@@ -403,7 +403,7 @@ public class SalePanel extends JPanel {
         for (SaleItem item : cartItems) {
 			total += item.getQuantity() * item.getMedicine().getPrixVente();
 		}
-        totalLabel.setText("Total: " + String.format("%.2f", total) + " DZD");
+        totalLabel.setText("Total: " + String.format("%.2f", total) + " DT");
     }
 
     private void resetSalePanel() {

@@ -17,7 +17,7 @@ public class SupplierPanel extends JPanel {
         // Toolbar
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
-        JButton allBtn = new JButton("TAll suppliers");
+        JButton allBtn = new JButton("All suppliers");
         JButton searchBtn = new JButton("Search Supplier");
         JButton addBtn = new JButton("Add Supplier");
 

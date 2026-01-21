@@ -249,7 +249,7 @@ public class CommandPanel extends JPanel {
         }
 
         // build Command model and create via DAO
-        Command cmd = new Command(null, null, "pending", totalPrix, new SupplierDao().getSupplierById(idFournisseur));
+        Command cmd = new Command(null, null, "en attente", totalPrix, new SupplierDao().getSupplierById(idFournisseur));
         int idCommande = commandDao.createCommande(cmd);
         if (idCommande <= 0) {
             JOptionPane.showMessageDialog(this, "Unable to create order", "Error", JOptionPane.ERROR_MESSAGE);

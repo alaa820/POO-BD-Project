@@ -180,7 +180,7 @@ public class ViewCommandPanel extends JPanel {
             int modelRow = commandsTable.convertRowIndexToModel(sel);
             Object statutObj = commandsTableModel.getValueAt(modelRow, 4);
             String statut = statutObj == null ? "" : statutObj.toString();
-            boolean isPending = "pending".equalsIgnoreCase(statut);
+            boolean isPending = "en attente".equalsIgnoreCase(statut);
 
             // Cancel works only when pending
             cancelBtn.setEnabled(isPending);
@@ -379,13 +379,13 @@ public class ViewCommandPanel extends JPanel {
 
         Object statutObj = commandsTableModel.getValueAt(modelRow, 4);
         String statut = statutObj == null ? "" : statutObj.toString();
-        if (!"pending".equalsIgnoreCase(statut)) {
+        if (!"en attente".equalsIgnoreCase(statut)) {
             JOptionPane.showMessageDialog(this, "Order already received", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
         // Update status in DB
-        boolean ok = commandDao.updateStatut(idCommande, "received");
+        boolean ok = commandDao.updateStatut(idCommande, "reçue");
         if (!ok) {
             JOptionPane.showMessageDialog(this, "Error updating status", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -432,7 +432,7 @@ public class ViewCommandPanel extends JPanel {
 
         Object statutObj = commandsTableModel.getValueAt(modelRow, 4);
         String statut = statutObj == null ? "" : statutObj.toString();
-        if (!"pending".equalsIgnoreCase(statut)) {
+        if (!"en attente".equalsIgnoreCase(statut)) {
             JOptionPane.showMessageDialog(this, "Order already received or cancelled", "Info", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
@@ -444,7 +444,7 @@ public class ViewCommandPanel extends JPanel {
         }
 
         // Update status to cancelled
-        boolean ok = commandDao.updateStatut(idCommande, "cancelled");
+        boolean ok = commandDao.updateStatut(idCommande, "annulée");
         if (!ok) {
             JOptionPane.showMessageDialog(this, "Error cancelling order", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -496,6 +496,15 @@ public class ViewCommandPanel extends JPanel {
             List<Command> commands = commandDao.getAllCommands(pending);
             
             for (Command c : commands) {
+                // Filter based on status: only show "en attente" for pending view
+                if (pending && !"en attente".equalsIgnoreCase(c.getStatut())) {
+                    continue;
+                }
+                // For received view, show "reçu" and "reçue"
+                if (!pending && "en attente".equalsIgnoreCase(c.getStatut())) {
+                    continue;
+                }
+                
                 double prix = c.getPrix();
                 String fournisseur = c.getSupplier() != null ? c.getSupplier().getSociete() : "N/A";
                 

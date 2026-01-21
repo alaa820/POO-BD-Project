@@ -13,10 +13,10 @@ import util.Session;
 public class HomeFrame extends JFrame {
     
     // 🎨 COLOR PALETTE - Change these to customize the entire UI
-    public static final Color COLOR_DARK_GRAY = new Color(0x4A5759);//COLOR_DARK_GRAY    = #4A5759      // Dark Pink - backgrounds
-    public static final Color COLOR_CREAM = new Color(0xF7A8C4);        // Light Pink
-    public static final Color COLOR_LIGHT_GRAY    = new Color(0xDEDBD2 ); // Medium-Light Pink
-    public static final Color COLOR_SAGE_GREEN = new Color(0xB0C4B1);       // Medium Pink
+    public static final Color COLOR_DARK_GRAY = new Color(0x4A5759);
+    public static final Color COLOR_CREAM = new Color(0xF7A8C4);        
+    public static final Color COLOR_LIGHT_GRAY    = new Color(0xDEDBD2 ); 
+    public static final Color COLOR_SAGE_GREEN = new Color(0xB0C4B1);    
     public static final Color COLOR_LIGHT_PINK = new Color(0xEDAFB8); 
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel contentPanel = new JPanel(cardLayout);

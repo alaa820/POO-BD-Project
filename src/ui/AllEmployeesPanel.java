@@ -7,9 +7,7 @@ import java.util.List;
 import dao.EmployeeDao;
 import model.Employee;
 
-/**
- * Panel to display all employees in a table
- */
+
 public class AllEmployeesPanel extends JPanel {
 
     private DefaultTableModel tableModel;
@@ -37,20 +35,18 @@ public class AllEmployeesPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Refresh button
+        
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton refreshBtn = new JButton("Refresh");
         refreshBtn.addActionListener(e -> loadAllEmployees());
         buttonPanel.add(refreshBtn);
         add(buttonPanel, BorderLayout.NORTH);
 
-        // Load data on startup
+   
         loadAllEmployees();
     }
 
-    /**
-     * Load all employees from database and display in table
-     */
+   
     private void loadAllEmployees() {
         tableModel.setRowCount(0);
         List<Employee> employees = employeeDao.getAllEmployees();

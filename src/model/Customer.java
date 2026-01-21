@@ -34,18 +34,10 @@ public class Customer {
     public String getAdresse() { return adresse; }
     public String getDescription() { return description; }
 
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setAdresse(String adresse) {
-        this.adresse = adresse;
-    }
-
+    public void setTelephone(String telephone) {this.telephone = telephone;}
+    public void setEmail(String email) {this.email = email;}
+    public void setAdresse(String adresse) {this.adresse = adresse;    }
+    @Override
     public String toString() {
         return nom + " " + prenom + " (" + telephone + ")";
     }

@@ -56,7 +56,7 @@ public class CommandPanel extends JPanel {
         medicineCodeMap = new HashMap<>();
         cartItems = new ArrayList<>();
 
-        // Build UI: input panel on top, cart panel center
+        
         add(createInputPanel(), BorderLayout.NORTH);
         add(createCartPanel(), BorderLayout.CENTER);
 

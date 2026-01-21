@@ -11,7 +11,7 @@ import java.util.List;
 
 public class SupplierDao {
 
-    // Ajouter un fournisseur
+   
     public void addSupplier(Supplier s) throws SQLException,DataMissingException {
         String sql = "INSERT INTO Fournisseur " +
                      "(nom, prenom, societe, email, telephone, adresse, description) " +
@@ -65,7 +65,7 @@ public class SupplierDao {
 	}
     
     
-    // Récupérer tous les fournisseurs
+ 
     public List<Supplier> getAllSuppliers() {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM Fournisseur";
@@ -94,7 +94,6 @@ public class SupplierDao {
         return list;
     }
 
-    // Chercher fournisseur par nom (like %keyword%)
     public List<Supplier> searchSupplierByName(String keyword) {
         List<Supplier> list = new ArrayList<>();
         String sql = "SELECT * FROM Fournisseur WHERE nom LIKE ?";

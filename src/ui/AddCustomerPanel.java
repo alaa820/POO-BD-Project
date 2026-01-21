@@ -9,9 +9,7 @@ import dao.CustomerDao;
 import exception.DataMissingException;
 
 
-/**
- * Panel to add a new customer
- */
+
 public class AddCustomerPanel extends JPanel {
     
     private JTextField nomField;
@@ -35,9 +33,7 @@ public class AddCustomerPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
     
-    /**
-     * Creates the form panel with all input fields
-     */
+    
     private JPanel createFormPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -50,31 +46,31 @@ public class AddCustomerPanel extends JPanel {
         
         int row = 0;
         
-        // Nom
+        
         addFormField(panel, gbc, row++, "Name:", nomField = new JTextField(20));
         
-        // Prenom
+       
         addFormField(panel, gbc, row++, "Surname:", prenomField = new JTextField(20));
         
-        // Date Naissance (format: YYYY-MM-DD)
+    
         addFormField(panel, gbc, row++, "Birth Date (YYYY-MM-DD):", dateNaissanceField = new JTextField(20));
         
-        // Sexe
+        
         JPanel sexePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         sexeCombo = new JComboBox<>(new String[]{"M", "F"});
         sexePanel.add(sexeCombo);
         addFormFieldPanel(panel, gbc, row++, "Gender:", sexePanel);
         
-        // Telephone
+        
         addFormField(panel, gbc, row++, "Phone Number:", telephoneField = new JTextField(20));
         
-        // Email
+       
         addFormField(panel, gbc, row++, "Email:", emailField = new JTextField(20));
         
-        // Adresse
+        
         addFormField(panel, gbc, row++, "Address:", adresseField = new JTextField(20));
         
-        // Description
+       
         gbc.gridx = 0;
         gbc.gridy = row++;
         JLabel descLabel = new JLabel("Description:");
@@ -90,7 +86,7 @@ public class AddCustomerPanel extends JPanel {
         JScrollPane descScrollPane = new JScrollPane(descriptionArea);
         panel.add(descScrollPane, gbc);
         
-        // Buttons
+        
         gbc.gridx = 0;
         gbc.gridy = row++;
         gbc.gridwidth = 2;
@@ -115,9 +111,7 @@ public class AddCustomerPanel extends JPanel {
         return panel;
     }
     
-    /**
-     * Helper method to add a text field to the form
-     */
+ 
     private void addFormField(JPanel panel, GridBagConstraints gbc, int row, String label, JTextField field) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -133,9 +127,7 @@ public class AddCustomerPanel extends JPanel {
         panel.add(field, gbc);
     }
     
-    /**
-     * Helper method to add a panel field to the form
-     */
+  
     private void addFormFieldPanel(JPanel panel, GridBagConstraints gbc, int row, String label, JPanel fieldPanel) {
         gbc.gridx = 0;
         gbc.gridy = row;
@@ -150,9 +142,7 @@ public class AddCustomerPanel extends JPanel {
         panel.add(fieldPanel, gbc);
     }
     
-    /**
-     * Handle adding a customer
-     */
+   
     private void handleAddCustomer() {
         // Get input values
         String nom = nomField.getText().trim();
@@ -164,7 +154,7 @@ public class AddCustomerPanel extends JPanel {
         String adresse = adresseField.getText().trim();
         String description = descriptionArea.getText().trim();
         
-        // Parse date
+      
         LocalDate dateNaissance;
         try {
             dateNaissance = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
@@ -176,7 +166,7 @@ public class AddCustomerPanel extends JPanel {
             return;
         }
         
-        // Call DAO to add customer
+        
         try {
             boolean success = customerDao.addCustomer(nom, prenom, dateNaissance, sexe, 
                                                       telephone, email, adresse, description);
@@ -202,9 +192,7 @@ public class AddCustomerPanel extends JPanel {
         }
     }
     
-    /**
-     * Clear all form fields
-     */
+   
     private void clearForm() {
         nomField.setText("");
         prenomField.setText("");

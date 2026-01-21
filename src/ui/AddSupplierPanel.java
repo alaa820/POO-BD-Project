@@ -7,9 +7,7 @@ import model.Supplier;
 import dao.SupplierDao;
 import exception.DataMissingException;
 
-/**
- * Panel to add a new supplier
- */
+
 public class AddSupplierPanel extends JPanel {
 
     private JTextField nomField, prenomField, societeField, emailField, telField, adresseField;

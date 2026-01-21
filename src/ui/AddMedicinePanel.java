@@ -13,9 +13,7 @@ import dao.SupplierDao;
 import model.Medicine;
 import model.Supplier;
 
-/**
- * Panel to add a new medicine with supplier suggestion bar
- */
+
 public class AddMedicinePanel extends JPanel {
 
     private JTextField codeBarreField, nomField, prixAchatField, prixVenteField;
@@ -52,23 +50,23 @@ public class AddMedicinePanel extends JPanel {
 
         int row = 0;
 
-        // Basic information
+        
         addFormField(panel, gbc, row++, "Barcode:", codeBarreField = new JTextField(20));
         addFormField(panel, gbc, row++, "Name:", nomField = new JTextField(20));
         addFormField(panel, gbc, row++, "Dosage:", dosageField = new JTextField(20));
         addFormField(panel, gbc, row++, "Pharmaceutical Form:", formePharmaceutiqueField = new JTextField(20));
 
-        // Pricing
+        
         addFormField(panel, gbc, row++, "Purchase Price:", prixAchatField = new JTextField(20));
         addFormField(panel, gbc, row++, "Sale Price:", prixVenteField = new JTextField(20));
         addFormField(panel, gbc, row++, "VAT Rate (%):", tauxTVAField = new JTextField(20));
 
-        // Quantity and storage
+        
         addFormField(panel, gbc, row++, "Quantity:", quantiteField = new JTextField(20));
         addFormField(panel, gbc, row++, "Threshold:", seuilField = new JTextField(20));
         addFormField(panel, gbc, row++, "Location:", emplacementField = new JTextField(20));
 
-        // Prescription requirement
+    
         gbc.gridx = 0;
         gbc.gridy = row++;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -76,10 +74,10 @@ public class AddMedicinePanel extends JPanel {
         prescriptionCheckBox.setFont(new Font("Arial", Font.PLAIN, 11));
         panel.add(prescriptionCheckBox, gbc);
 
-        // Supplier suggestion section
+      
         row = addSupplierSuggestionField(panel, gbc, row);
 
-        // Buttons
+        
         gbc.gridx = 0;
         gbc.gridy = row++;
         gbc.gridwidth = 2;
@@ -121,7 +119,7 @@ public class AddMedicinePanel extends JPanel {
         supplierField.setFont(new Font("Arial", Font.PLAIN, 11));
         panel.add(supplierField, gbc);
         
-        // Create suggestion list
+     
         suggestionModel = new DefaultListModel<>();
         supplierSuggestionList = new JList<>(suggestionModel);
         supplierSuggestionList.setFont(new Font("Arial", Font.PLAIN, 10));
@@ -131,7 +129,7 @@ public class AddMedicinePanel extends JPanel {
         JScrollPane suggestionScroll = new JScrollPane(supplierSuggestionList);
         suggestionScroll.setPreferredSize(new Dimension(250, 80));
         
-        // Add to panel below the text field
+       
         gbc.gridx = 1;
         gbc.gridy = row++;
         gbc.fill = GridBagConstraints.BOTH;
@@ -139,7 +137,7 @@ public class AddMedicinePanel extends JPanel {
         panel.add(suggestionScroll, gbc);
         gbc.weighty = 0;
         
-        // Add document listener for real-time suggestions
+        
         supplierField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 updateSuggestions();
@@ -172,19 +170,19 @@ public class AddMedicinePanel extends JPanel {
                     selectedSupplier = null;
                 }
                 
-                // Revalidate to ensure layout updates
+               
                 panel.revalidate();
                 panel.repaint();
             }
         });
         
-        // Add list selection listener
+       
         supplierSuggestionList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String selected = supplierSuggestionList.getSelectedValue();
                 if (selected != null) {
                     supplierField.setText(selected);
-                    // Get the supplier object
+                    
                     List<Supplier> suppliers = supplierDao.getAllSuppliers();
                     if (suppliers != null) {
                         for (Supplier s : suppliers) {
@@ -200,7 +198,7 @@ public class AddMedicinePanel extends JPanel {
             }
         });
         
-        // Initially hide the suggestions
+       
         suggestionScroll.setVisible(false);
 
         return row;

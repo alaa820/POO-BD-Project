@@ -252,24 +252,7 @@ public class DashboardPanel extends JPanel {
 			}
 			int numOrders = salesByEmployee.size();
 			
-        /*List<SaleItem> saleItems = saleItemDao.getAllSaleItem();
-
-        for (Employee s : employees) {
-            int i = employees.indexOf(s);
-            String fullName = s.getNom() + " " + s.getPrenom();
-
-            int numOrders = 0;
-            double totalRevenue = 0;
-
-            for (SaleItem si : saleItems) {
-                System.out.println("Checking sale for employee: " + s.getUsername());
-                if (si.getSale().getEmployee().getUsername().equals(s.getUsername())) {
-                    System.out.println("Match found for employee: " + fullName);
-                    numOrders++;
-                    totalRevenue += si.getMedicine().getPrixVente() * si.getQuantity();
-                }
-            }
-*/
+     
             data[i][0] = fullName;
             data[i][1] = numOrders;
             data[i][2] = String.format("%.2f", totalRevenue);

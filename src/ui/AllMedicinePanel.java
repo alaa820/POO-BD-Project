@@ -7,9 +7,6 @@ import java.util.List;
 import dao.MedicineDao;
 import model.Medicine;
 
-/**
- * Panel to display all medicines
- */
 public class AllMedicinePanel extends JPanel {
 
     private JTable table;
@@ -36,7 +33,7 @@ public class AllMedicinePanel extends JPanel {
         table.setRowHeight(25);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         
-        // Set column widths for better visibility
+        
         
         table.getColumnModel().getColumn(0).setPreferredWidth(120);   // Barcode
         table.getColumnModel().getColumn(1).setPreferredWidth(150);   // Name

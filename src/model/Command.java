@@ -8,8 +8,7 @@ public class Command {
     private String statut;
     private double prix;
     private Supplier s;
-
-    // Constructeur sans id (car id auto-incrémenté en DB)
+	public Command() {}
     public Command(LocalDate dateCommande, LocalDate dateReception, String statut, double prix, Supplier s) {
         this.dateCommande = dateCommande;
         this.dateReception = dateReception;
@@ -32,8 +31,6 @@ public class Command {
     public void setStatut(String statut) { this.statut = statut; }
     public void setPrix(double prix) { this.prix = prix; }
     public void setSupplier(Supplier s) { this.s = s; }
-
-    // Setter for id (used when loading from DB)
     public void setIdCommande(int idCommande) { this.idCommande = idCommande; }
 
     // toString

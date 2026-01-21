@@ -7,9 +7,7 @@ import java.util.List;
 import dao.CustomerDao;
 import model.Customer;
 
-/**
- * Panel to display all customers in a table
- */
+
 public class AllCustomerPanel extends JPanel {
 
     private DefaultTableModel tableModel;
@@ -50,20 +48,18 @@ public class AllCustomerPanel extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Refresh button
+      
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton refreshBtn = new JButton("Refresh");
         refreshBtn.addActionListener(e -> loadAllCustomers());
         buttonPanel.add(refreshBtn);
         add(buttonPanel, BorderLayout.NORTH);
 
-        // Load data on startup
+        
         loadAllCustomers();
     }
 
-    /**
-     * Load all customers from database and display in table
-     */
+ 
     private void loadAllCustomers() {
         tableModel.setRowCount(0);
         List<Customer> customers = customerDao.getAllCustomers();

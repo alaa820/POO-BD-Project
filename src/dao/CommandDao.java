@@ -306,7 +306,7 @@ public class CommandDao {
     }
 
     return list;
-}}
+}
 
 	/**
 	 * Get a command by ID with JOIN to avoid additional query for supplier
@@ -514,4 +514,4 @@ public class CommandDao {
     }
 
     return list;
-}
+}}

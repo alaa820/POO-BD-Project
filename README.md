@@ -1,7 +1,5 @@
 ---
 title: Pharmacy Inventory Management System
-author: Alaa
-date: 2025–2026
 ---
 
 # Pharmacy Inventory Management System

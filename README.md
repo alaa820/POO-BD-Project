@@ -85,6 +85,6 @@ You must ensure that the MySQL JDBC connector is correctly configured:
 ##  if any problem arises please contact:
 - houda.jardak@insat.ucar.tn
 - malek.gdara@insat.ucar.tn
--nouha.jedidi@insat.ucar.tn
--alaaeddine.fadhel@insat.ucar.tn
--may.abdallah@insat.ucar.tn
+- nouha.jedidi@insat.ucar.tn
+- alaaeddine.fadhel@insat.ucar.tn
+- may.abdallah@insat.ucar.tn

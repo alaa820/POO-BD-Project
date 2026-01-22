@@ -8,6 +8,7 @@ public class Command {
     private String statut;
     private double prix;
     private Supplier s;
+	
 	public Command() {}
     public Command(LocalDate dateCommande, LocalDate dateReception, String statut, double prix, Supplier s) {
         this.dateCommande = dateCommande;

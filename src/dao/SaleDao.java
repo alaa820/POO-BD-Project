@@ -4,155 +4,157 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
-import util.DatabaseConnection;
-import model.Customer;
 import java.time.LocalDateTime;
-import util.Session;
-import model.Employee;
-import model.Customer;
-import model.Sale;
-import java.util.List;
 import java.util.ArrayList;
-import dao.CustomerDao;
+import java.util.List;
+
+import util.DatabaseConnection;
+import util.Session;
+import model.Customer;
+import model.Employee;
+import model.Sale;
+import exception.DataMissingException;
 
 public class SaleDao {
 
-	public int addSale(double totalAmount, Customer c) {
-		// TODO Auto-generated method stub
-		try {
-			Connection con = util.DatabaseConnection.getConnection();
-			String query = "INSERT INTO vente (date_vente, prix, id_client, username_name) VALUES (?, ?, ?,?)";
-			PreparedStatement pst = con.prepareStatement(query);
-			LocalDateTime dateTime = LocalDateTime.now();
-			pst.setObject(1, dateTime);
-			pst.setDouble(2, totalAmount);
-			pst.setInt(3, c.getIdClient());
-			pst.setString(4, Session.getCurrentUser().getUsername());
-			pst.executeUpdate();
-			String query2 = "SELECT id_vente FROM vente ORDER BY id_vente DESC LIMIT 1";
-			PreparedStatement pst2 = con.prepareStatement(query2);
-			var rs = pst2.executeQuery();
-			if (rs.next()) {
-				return rs.getInt("id_vente");
-			}
+    // Ajoute une vente et retourne son ID
+    public int addSale(double totalAmount, Customer c) {
+        String insertQuery = "INSERT INTO vente (date_vente, prix, id_client, username_name) VALUES (?, ?, ?, ?)";
+        String getLastIdQuery = "SELECT id_vente FROM vente ORDER BY id_vente DESC LIMIT 1";
 
-		} catch (SQLException e) {
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(insertQuery);
+             PreparedStatement pst2 = con.prepareStatement(getLastIdQuery)) {
 
-			e.printStackTrace();
-		}
-		return -1;
-	}
+            LocalDateTime dateTime = LocalDateTime.now();
+            pst.setObject(1, dateTime);
+            pst.setDouble(2, totalAmount);
+            pst.setInt(3, c.getIdClient());
+            pst.setString(4, Session.getCurrentUser().getUsername());
 
-	public List<Sale> getAllSales() {
+            pst.executeUpdate();
 
-		List<Sale> listS = new ArrayList<>();
+            try (ResultSet rs = pst2.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_vente");
+                }
+            }
 
-		try {
-			Connection con = DatabaseConnection.getConnection();
-			// Sample query execution (pseudo-code)
-			String query = "SELECT * FROM vente";
-			PreparedStatement pst = con.prepareStatement(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-			ResultSet rs = pst.executeQuery();
+        return -1;
+    }
 
-			while (rs.next()) {
-				int idVente = rs.getInt("id_vente");
-				LocalDateTime dateVente = rs.getObject("date_vente", LocalDateTime.class);
-				double prix = rs.getDouble("prix");
-				int idClient = rs.getInt("id_client");
-				String username = rs.getString("username_name");
+    // Récupère toutes les ventes
+    public List<Sale> getAllSales() {
+        List<Sale> listS = new ArrayList<>();
+        String query = "SELECT * FROM vente";
 
-				Customer c = new CustomerDao().getCustomerById(idClient);
-				Employee e = new EmployeeDao().getEmployeeByUsername(username);
-				Sale sale = new Sale(idVente, dateVente, prix, c, e);
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
 
-				listS.add(sale);
+            while (rs.next()) {
+                int idVente = rs.getInt("id_vente");
+                LocalDateTime dateVente = rs.getObject("date_vente", LocalDateTime.class);
+                double prix = rs.getDouble("prix");
+                int idClient = rs.getInt("id_client");
+                String username = rs.getString("username_name");
 
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return listS;
-	}
+                Customer c = new CustomerDao().getCustomerById(idClient);
+                Employee e = new EmployeeDao().getEmployeeByUsername(username);
+                listS.add(new Sale(idVente, dateVente, prix, c, e));
+            }
 
-	public Sale getSaleById(int idVente) {
-		Sale sale = null;
-		try {
-			Connection con = DatabaseConnection.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-			String query = "SELECT * FROM vente WHERE id_vente = ?";
-			PreparedStatement pst = con.prepareStatement(query);
-			pst.setInt(1, idVente);
+        return listS;
+    }
 
-			ResultSet rs = pst.executeQuery();
+    // Récupère une vente par son ID
+    public Sale getSaleById(int idVente) {
+        Sale sale = null;
+        String query = "SELECT * FROM vente WHERE id_vente = ?";
 
-			if (rs.next()) {
-				int id = rs.getInt("id_vente");
-				LocalDateTime dateVente = rs.getObject("date_vente", LocalDateTime.class);
-				double prix = rs.getDouble("prix");
-				int idClient = rs.getInt("id_client");
-				String username = rs.getString("username_name");
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(query)) {
 
-				Customer c = new CustomerDao().getCustomerById(idClient);
-				Employee e = new EmployeeDao().getEmployeeByUsername(username);
-				sale = new Sale(id, dateVente, prix, c, e);
-			}
-		} catch (SQLException e) {
+            pst.setInt(1, idVente);
 
-			e.printStackTrace();
-		}
-		return sale;
-	}
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    int id = rs.getInt("id_vente");
+                    LocalDateTime dateVente = rs.getObject("date_vente", LocalDateTime.class);
+                    double prix = rs.getDouble("prix");
+                    int idClient = rs.getInt("id_client");
+                    String username = rs.getString("username_name");
 
-	public double getTotalRevenue() {
-		double totalRevenue = 0.0;
-		String sql = "SELECT SUM(prix) AS chiffre_affaires FROM vente";
+                    Customer c = new CustomerDao().getCustomerById(idClient);
+                    Employee e = new EmployeeDao().getEmployeeByUsername(username);
+                    sale = new Sale(id, dateVente, prix, c, e);
+                }
+            }
 
-		try (Connection con = DatabaseConnection.getConnection();
-				PreparedStatement pst = con.prepareStatement(sql);
-				ResultSet rs = pst.executeQuery()) {
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-			if (rs.next()) {
-				totalRevenue = rs.getDouble("chiffre_affaires");
-			}
+        return sale;
+    }
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    // Calcule le chiffre d'affaires total
+    public double getTotalRevenue() {
+        double totalRevenue = 0.0;
+        String sql = "SELECT SUM(prix) AS chiffre_affaires FROM vente";
 
-		return totalRevenue;
-	}
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(sql);
+             ResultSet rs = pst.executeQuery()) {
 
-	public List<Sale> getSaleByEmployee(String username) {
-		List<Sale> listS = new ArrayList<>();
+            if (rs.next()) {
+                totalRevenue = rs.getDouble("chiffre_affaires");
+            }
 
-		try {
-			Connection con = DatabaseConnection.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-			String query = "SELECT * FROM vente WHERE username_name = ?";
-			PreparedStatement pst = con.prepareStatement(query);
-			pst.setString(1, username);
+        return totalRevenue;
+    }
 
-			ResultSet rs = pst.executeQuery();
+    // Récupère toutes les ventes d'un employé
+    public List<Sale> getSaleByEmployee(String username) {
+        List<Sale> listS = new ArrayList<>();
+        String query = "SELECT * FROM vente WHERE username_name = ?";
 
-			while (rs.next()) {
-				int idVente = rs.getInt("id_vente");
-				LocalDateTime dateVente = rs.getObject("date_vente", LocalDateTime.class);
-				double prix = rs.getDouble("prix");
-				int idClient = rs.getInt("id_client");
-				String usern = rs.getString("username_name");
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(query)) {
 
-				Customer c = new CustomerDao().getCustomerById(idClient);
-				Employee e = new EmployeeDao().getEmployeeByUsername(usern);
-				Sale sale = new Sale(idVente, dateVente, prix, c, e);
+            pst.setString(1, username);
 
-				listS.add(sale);
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    int idVente = rs.getInt("id_vente");
+                    LocalDateTime dateVente = rs.getObject("date_vente", LocalDateTime.class);
+                    double prix = rs.getDouble("prix");
+                    int idClient = rs.getInt("id_client");
+                    String usern = rs.getString("username_name");
 
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return listS;
-	}
+                    Customer c = new CustomerDao().getCustomerById(idClient);
+                    Employee e = new EmployeeDao().getEmployeeByUsername(usern);
+                    listS.add(new Sale(idVente, dateVente, prix, c, e));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return listS;
+    }
 
 }

@@ -57,7 +57,7 @@ The project uses MySQL. You must update the database connection settings before 
 ###  MySQL URL, Username, Password
 Open the following file:  
 ```
-src/util/DatabaseConnector.java
+src/util/DatabaseConnection.java
 ```
 
 Modify these fields according to your MySQL configuration:  

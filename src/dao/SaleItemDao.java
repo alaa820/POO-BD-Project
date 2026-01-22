@@ -1,147 +1,156 @@
 package dao;
 
-import model.Customer;
-import model.Medicine;
-
-import model.Supplier;
-import util.DatabaseConnection;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import model.SaleItem;
+
 import model.Medicine;
 import model.Sale;
+import model.SaleItem;
+import util.DatabaseConnection;
 
 public class SaleItemDao {
 
-	public void saveSaleItem(int idVente, SaleItem saleItem) {
-		String sql = "INSERT INTO venteproduit (id_vente, code_barre, quantite) VALUES (?,?, ?)";
+    // Enregistre un article de vente pour une vente spécifique
+    public void saveSaleItem(int idVente, SaleItem saleItem) {
+        String sql = "INSERT INTO venteproduit (id_vente, code_barre, quantite) VALUES (?,?, ?)";
 
-		try (java.sql.Connection conn = DatabaseConnection.getConnection();
-				java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			pstmt.setInt(1, idVente);
-			pstmt.setString(2, saleItem.getMedicine().getCodeBarre());
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-			pstmt.setInt(3, saleItem.getQuantity());
+            pstmt.setInt(1, idVente);
+            pstmt.setString(2, saleItem.getMedicine().getCodeBarre());
+            pstmt.setInt(3, saleItem.getQuantity());
+            pstmt.executeUpdate();
 
-			pstmt.executeUpdate();
-		} catch (java.sql.SQLException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	public List<SaleItem> getAllSaleItem() {
-		List<SaleItem> listSI = new ArrayList<>();
-		try {
-			Connection con = DatabaseConnection.getConnection();
+    // Récupère tous les articles de vente
+    public List<SaleItem> getAllSaleItem() {
+        List<SaleItem> listSI = new ArrayList<>();
+        String query = "SELECT * FROM venteproduit";
 
-			String query = "SELECT * FROM venteproduit";
-			PreparedStatement pst = con.prepareStatement(query);
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
 
-			ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                int idVente = rs.getInt("id_vente");
+                String codeBarre = rs.getString("code_barre");
+                int quantite = rs.getInt("quantite");
 
-			while (rs.next()) {
-				int idVente = rs.getInt("id_vente");
-				String codeBarre = rs.getString("code_barre");
-				int quantite = rs.getInt("quantite");
+                Sale s = new SaleDao().getSaleById(idVente);
+                Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
+                listSI.add(new SaleItem(m, s, quantite));
+            }
 
-				Sale s = new SaleDao().getSaleById(idVente);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-				Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
-				SaleItem saleItem = new SaleItem(m, s, quantite);
+        return listSI;
+    }
 
-				listSI.add(saleItem);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return listSI;
-	}
+    // Recherche les articles par nom de client et nom de médicament
+    public List<SaleItem> searchByClientAndMedicine(String nomClient, String nomMedicine) {
+        List<SaleItem> saleItems = new ArrayList<>();
+        String query = "SELECT vp.* FROM venteproduit vp "
+                     + "JOIN vente v ON vp.id_vente = v.id_vente "
+                     + "JOIN client c ON v.id_client = c.id_client "
+                     + "JOIN medicament p ON vp.code_barre = p.code_barre "
+                     + "WHERE c.nom LIKE ? AND p.nom LIKE ?";
 
-	public List<SaleItem> searchByClientAndMedicine(String nomClient, String nomMedicine) {
-		List<SaleItem> saleItems = new ArrayList<>();
-		try {
-			Connection con = DatabaseConnection.getConnection();
-			String query = "SELECT vp.* FROM venteproduit vp " + "JOIN vente v ON vp.id_vente = v.id_vente "
-					+ "JOIN client c ON v.id_client = c.id_client "
-					+ "JOIN medicament p ON vp.code_barre = p.code_barre " + "WHERE c.nom LIKE ? AND p.nom LIKE ?";
-			PreparedStatement pst = con.prepareStatement(query);
-			pst.setString(1, "%" + nomClient + "%");
-			pst.setString(2, "%" + nomMedicine + "%");
-			ResultSet rs = pst.executeQuery();
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(query)) {
 
-			while (rs.next()) {
-				int idVente = rs.getInt("id_vente");
-				String codeBarre = rs.getString("code_barre");
-				int quantite = rs.getInt("quantite");
+            pst.setString(1, "%" + nomClient + "%");
+            pst.setString(2, "%" + nomMedicine + "%");
 
-				Sale s = new SaleDao().getSaleById(idVente);
-				Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
-				SaleItem saleItem = new SaleItem(m, s, quantite);
-				saleItems.add(saleItem);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return saleItems;
-	}
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    int idVente = rs.getInt("id_vente");
+                    String codeBarre = rs.getString("code_barre");
+                    int quantite = rs.getInt("quantite");
 
-	public List<SaleItem> searchByClient(String nomClient) {
-		List<SaleItem> saleItems = new ArrayList<>();
+                    Sale s = new SaleDao().getSaleById(idVente);
+                    Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
+                    saleItems.add(new SaleItem(m, s, quantite));
+                }
+            }
 
-		try {
-			Connection con = DatabaseConnection.getConnection();
-			String query = "SELECT vp.* FROM venteproduit vp " + "JOIN vente v ON vp.id_vente = v.id_vente "
-					+ "JOIN client c ON v.id_client = c.id_client " + "WHERE c.nom LIKE ? ";
-			PreparedStatement pst = con.prepareStatement(query);
-			pst.setString(1, "%" + nomClient + "%");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-			ResultSet rs = pst.executeQuery();
+        return saleItems;
+    }
 
-			while (rs.next()) {
-				int idVente = rs.getInt("id_vente");
-				String codeBarre = rs.getString("code_barre");
-				int quantite = rs.getInt("quantite");
+    // Recherche les articles par nom de client
+    public List<SaleItem> searchByClient(String nomClient) {
+        List<SaleItem> saleItems = new ArrayList<>();
+        String query = "SELECT vp.* FROM venteproduit vp "
+                     + "JOIN vente v ON vp.id_vente = v.id_vente "
+                     + "JOIN client c ON v.id_client = c.id_client "
+                     + "WHERE c.nom LIKE ?";
 
-				Sale s = new SaleDao().getSaleById(idVente);
-				Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
-				SaleItem saleItem = new SaleItem(m, s, quantite);
-				saleItems.add(saleItem);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return saleItems;
-	}
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(query)) {
 
-	public List<SaleItem> searchByMedicine(String nomMedicine) {
-		List<SaleItem> saleItems = new ArrayList<>();
-		try {
-			Connection con = DatabaseConnection.getConnection();
-			String query = "SELECT vp.* FROM venteproduit vp " + "JOIN vente v ON vp.id_vente = v.id_vente "
-					+ "JOIN medicament p ON vp.code_barre = p.code_barre " + "WHERE  p.nom LIKE  ?";
-			PreparedStatement pst = con.prepareStatement(query);
+            pst.setString(1, "%" + nomClient + "%");
 
-			pst.setString(1, "%" + nomMedicine + "%");
-			ResultSet rs = pst.executeQuery();
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    int idVente = rs.getInt("id_vente");
+                    String codeBarre = rs.getString("code_barre");
+                    int quantite = rs.getInt("quantite");
 
-			while (rs.next()) {
-				int idVente = rs.getInt("id_vente");
-				String codeBarre = rs.getString("code_barre");
-				int quantite = rs.getInt("quantite");
+                    Sale s = new SaleDao().getSaleById(idVente);
+                    Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
+                    saleItems.add(new SaleItem(m, s, quantite));
+                }
+            }
 
-				Sale s = new SaleDao().getSaleById(idVente);
-				Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
-				SaleItem saleItem = new SaleItem(m, s, quantite);
-				saleItems.add(saleItem);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return saleItems;
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return saleItems;
+    }
+
+    // Recherche les articles par nom de médicament
+    public List<SaleItem> searchByMedicine(String nomMedicine) {
+        List<SaleItem> saleItems = new ArrayList<>();
+        String query = "SELECT vp.* FROM venteproduit vp "
+                     + "JOIN vente v ON vp.id_vente = v.id_vente "
+                     + "JOIN medicament p ON vp.code_barre = p.code_barre "
+                     + "WHERE p.nom LIKE ?";
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement pst = con.prepareStatement(query)) {
+
+            pst.setString(1, "%" + nomMedicine + "%");
+
+            try (ResultSet rs = pst.executeQuery()) {
+                while (rs.next()) {
+                    int idVente = rs.getInt("id_vente");
+                    String codeBarre = rs.getString("code_barre");
+                    int quantite = rs.getInt("quantite");
+
+                    Sale s = new SaleDao().getSaleById(idVente);
+                    Medicine m = new MedicineDao().getMedecineByCode(codeBarre);
+                    saleItems.add(new SaleItem(m, s, quantite));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return saleItems;
+    }
 }

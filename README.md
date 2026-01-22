@@ -77,7 +77,7 @@ You must ensure that the MySQL JDBC connector is correctly configured:
 5. **Apply and Close**  
 
 ##  How to Run
-- Run the **Main** class from Eclipse  
+- Run the **Login** class from Eclipse  
 - Make sure:  
   - MySQL server is running  
   - Database tables are created  

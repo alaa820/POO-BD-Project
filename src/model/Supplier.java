@@ -1,6 +1,7 @@
 package model;
 
 public class Supplier {
+	
     private int idFournisseur;
     private String nom;
     private String prenom;
@@ -9,6 +10,8 @@ public class Supplier {
     private String telephone;
     private String adresse;
     private String description;
+
+	
 	public Supplier() {}
     public Supplier(String nom, String prenom, String societe,
             String email, String telephone,
@@ -21,8 +24,8 @@ public class Supplier {
     	this.adresse = adresse;
     	this.description = description;
     }
+	
     public int getIdFournisseur() {return idFournisseur;}
-    public void setIdFournisseur(int idFournisseur) {this.idFournisseur = idFournisseur;}
     public String getNom() {return nom;}      
     public String getPrenom() {return prenom;}       
     public String getSociete() {return societe;}        
@@ -30,4 +33,6 @@ public class Supplier {
     public String getTelephone() {return telephone;}        
     public String getAdresse() {return adresse;}
     public String getDescription() {return description;}
+
+	public void setIdFournisseur(int idFournisseur) {this.idFournisseur = idFournisseur;}
 }

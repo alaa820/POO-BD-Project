@@ -24,7 +24,9 @@ public class SaleItem {
 	
 
 	public int getQuantity() {return quantity;}
-	public void setQuantity(int quantity) {this.quantity = quantity;}
 	public Sale getSale() {return sale;}
+	
+	public void setQuantity(int quantity) {this.quantity = quantity;}
+	
 	
 }

@@ -81,5 +81,10 @@ You must ensure that the MySQL JDBC connector is correctly configured:
 - Make sure:  
   - MySQL server is running  
   - Database tables are created  
-  - Connection parameters are correct  
-
+  - Connection parameters are correct
+##  if any problem arises please contact:
+- houda.jardak@insat.ucar.tn
+- malek.gdara@insat.ucar.tn
+-nouha.jedidi@insat.ucar.tn
+-alaaeddine.fadhel@insat.ucar.tn
+-may.abdallah@insat.ucar.tn

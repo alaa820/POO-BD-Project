@@ -1,5 +1,5 @@
-CREATE DATABASE pharmacie_4;
-USE pharmacie_4;
+CREATE DATABASE pharmacie;
+USE pharmacie;
 
 CREATE TABLE IF NOT EXISTS Utilisateur (
     username VARCHAR(50) PRIMARY KEY ,

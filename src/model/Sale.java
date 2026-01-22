@@ -25,17 +25,18 @@ public class Sale {
 	}
     // Getters and setters
     public int getIdVente() {return idVente;}
-    public void setIdVente(int idVente) {this.idVente = idVente;}
     public LocalDateTime getDateVente() {return dateVente;}
-    public void setDateVente(LocalDateTime dateVente) {this.dateVente = dateVente;}
     public double getPrix() {return prix;}
-    public void setPrix(double prix) {this.prix = prix;}
     public Customer getClient() {return client;}
-    public void setClient(Customer client) {this.client = client;}
     public Employee getEmployee() {return employee;}
+	
     public void setEmployee(Employee employee) {this.employee = employee;}
-
-    @Override
+	public void setIdVente(int idVente) {this.idVente = idVente;}
+	public void setDateVente(LocalDateTime dateVente) {this.dateVente = dateVente;}
+	public void setPrix(double prix) {this.prix = prix;}
+	public void setClient(Customer client) {this.client = client;}
+    
+	@Override
     public String toString() {
         return "Sale{" +
                 "idVente=" + idVente +

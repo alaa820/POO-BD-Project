@@ -2,11 +2,9 @@ package ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import dao.EmployeeDao;
 import exception.InvalideUsernameException;
-import dao.EmployeeDao;
 import util.Session;
 import model.Employee;
 
@@ -15,14 +13,14 @@ import model.Employee;
  * Handles user authentication and navigation to the main application.
  */
 public class LoginFrame extends JFrame {
-    
+
     // Color Palette
     private static final Color COLOR_BACKGROUND = new Color(0xEDAFB8);  // Light pink
     private static final Color COLOR_PANEL = new Color(0xF7E1D7);       // Cream
     private static final Color COLOR_ACCENT = new Color(0xDEDBD2);      // Light gray
     private static final Color COLOR_PRIMARY = new Color(0xB0C4B1);     // Sage green
     private static final Color COLOR_DARK = new Color(0x4A5759);        // Dark blue-gray
-    
+
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JLabel messageLabel;
@@ -33,18 +31,18 @@ public class LoginFrame extends JFrame {
         setSize(450, 350);
         setLocationRelativeTo(null);
         setResizable(false);
-        
-        // Create main panel with gradient effect
+
+        // Create main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(COLOR_BACKGROUND);
-        
+
         // Create login panel
         JPanel loginPanel = createLoginPanel();
         mainPanel.add(loginPanel, BorderLayout.CENTER);
-        
+
         getContentPane().add(mainPanel);
     }
-    
+
     /**
      * Creates the login form panel
      */
@@ -52,15 +50,15 @@ public class LoginFrame extends JFrame {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(COLOR_PANEL);
         panel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(COLOR_PRIMARY, 2),
-            BorderFactory.createEmptyBorder(30, 40, 30, 40)
+                BorderFactory.createLineBorder(COLOR_PRIMARY, 2),
+                BorderFactory.createEmptyBorder(30, 40, 30, 40)
         ));
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        
+
         // Title
         JLabel titleLabel = new JLabel("Pharmacy Management");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
@@ -70,7 +68,7 @@ public class LoginFrame extends JFrame {
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panel.add(titleLabel, gbc);
-        
+
         // Subtitle
         JLabel subtitleLabel = new JLabel("Please login to continue");
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -78,7 +76,7 @@ public class LoginFrame extends JFrame {
         gbc.gridy = 1;
         gbc.insets = new Insets(5, 10, 15, 10);
         panel.add(subtitleLabel, gbc);
-        
+
         // Username label and field
         gbc.gridy = 2;
         gbc.gridwidth = 1;
@@ -88,14 +86,14 @@ public class LoginFrame extends JFrame {
         usernameLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         usernameLabel.setForeground(COLOR_DARK);
         panel.add(usernameLabel, gbc);
-        
+
         gbc.gridx = 1;
         usernameField = new JTextField(18);
         usernameField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         usernameField.setBackground(Color.WHITE);
         usernameField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(COLOR_PRIMARY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
+                BorderFactory.createLineBorder(COLOR_PRIMARY, 1),
+                BorderFactory.createEmptyBorder(5, 8, 5, 8)
         ));
         usernameField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -105,7 +103,7 @@ public class LoginFrame extends JFrame {
             }
         });
         panel.add(usernameField, gbc);
-        
+
         // Password label and field
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -113,14 +111,14 @@ public class LoginFrame extends JFrame {
         passwordLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         passwordLabel.setForeground(COLOR_DARK);
         panel.add(passwordLabel, gbc);
-        
+
         gbc.gridx = 1;
         passwordField = new JPasswordField(18);
         passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         passwordField.setBackground(Color.WHITE);
         passwordField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(COLOR_PRIMARY, 1),
-            BorderFactory.createEmptyBorder(5, 8, 5, 8)
+                BorderFactory.createLineBorder(COLOR_PRIMARY, 1),
+                BorderFactory.createEmptyBorder(5, 8, 5, 8)
         ));
         passwordField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -130,8 +128,8 @@ public class LoginFrame extends JFrame {
             }
         });
         panel.add(passwordField, gbc);
-        
-        // Message label (for error messages)
+
+        // Message label
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
@@ -140,11 +138,13 @@ public class LoginFrame extends JFrame {
         messageLabel.setForeground(new Color(200, 50, 50));
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         panel.add(messageLabel, gbc);
-        
+
         // Buttons panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
         buttonPanel.setBackground(COLOR_PANEL);
-        
+        GridBagConstraints gbcButtons = new GridBagConstraints();
+        gbcButtons.insets = new Insets(0, 10, 0, 10); // spacing between buttons
+
         JButton loginButton = new JButton("Login");
         loginButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         loginButton.setPreferredSize(new Dimension(110, 40));
@@ -154,8 +154,6 @@ public class LoginFrame extends JFrame {
         loginButton.setBorderPainted(false);
         loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         loginButton.addActionListener(e -> handleLogin());
-        
-        // Add hover effect
         loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 loginButton.setBackground(COLOR_PRIMARY.darker());
@@ -164,7 +162,7 @@ public class LoginFrame extends JFrame {
                 loginButton.setBackground(COLOR_PRIMARY);
             }
         });
-        
+
         JButton exitButton = new JButton("Exit");
         exitButton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         exitButton.setPreferredSize(new Dimension(110, 40));
@@ -174,8 +172,6 @@ public class LoginFrame extends JFrame {
         exitButton.setBorderPainted(false);
         exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         exitButton.addActionListener(e -> System.exit(0));
-        
-        // Add hover effect
         exitButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 exitButton.setBackground(COLOR_ACCENT.darker());
@@ -184,54 +180,61 @@ public class LoginFrame extends JFrame {
                 exitButton.setBackground(COLOR_ACCENT);
             }
         });
-        
-        buttonPanel.add(loginButton);
-        buttonPanel.add(exitButton);
-        
+
+        // Add buttons to buttonPanel
+        gbcButtons.gridx = 0;
+        buttonPanel.add(loginButton, gbcButtons);
+        gbcButtons.gridx = 1;
+        buttonPanel.add(exitButton, gbcButtons);
+
+        // Add buttonPanel to main panel
         gbc.gridx = 0;
         gbc.gridy = 5;
         gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER; // centered
         gbc.insets = new Insets(20, 10, 10, 10);
         panel.add(buttonPanel, gbc);
-        
+
         return panel;
     }
-    
+
     /**
      * Handles login button click and validation
      */
     private void handleLogin() {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
-        
+
         if (username.isEmpty() || password.isEmpty()) {
             messageLabel.setText("Please enter username and password");
             return;
         }
-        
+
         EmployeeDao employeeDao = new EmployeeDao();
         try {
-            // authenticateUser will either return true or throw exception
+            // authenticateUser may throw InvalideUsernameException
             employeeDao.authenticateUser(username, password);
-            
-            // If we reach here, authentication was successful
+
+            // If authentication succeeds
             Employee emp = employeeDao.getEmployeeByUsername(username);
-            
             System.out.println("Logged in user: " + emp);
             Session.setCurrentUser(emp);
-            
+
             SwingUtilities.invokeLater(() -> {
                 HomeFrame homeFrame = new HomeFrame();
                 homeFrame.setVisible(true);
                 LoginFrame.this.dispose();
             });
-        } catch(InvalideUsernameException e) {
+        } catch (InvalideUsernameException e) {
             messageLabel.setText("Invalid username or password");
             passwordField.setText("");
             usernameField.requestFocus();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "An error occurred during login", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-    
+
     /**
      * Main method to launch the application
      */

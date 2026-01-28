@@ -96,7 +96,7 @@ public class EmployeeDao {
             }
 
             if (username != null) {
-                sql.append(" AND telephone LIKE ?"); // Possible erreur : devrait être username ?
+                sql.append(" AND username LIKE ?"); 
                 params.add("%" + username + "%");
             }
 

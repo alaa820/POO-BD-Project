@@ -76,13 +76,13 @@ public class EmployeeDao {
     }
 
     // Recherche des employés avec critères optionnels (nom, prénom, username)
-    public List<Employee> searchEmployees(String nom, String prenom, String username) {
+    public List<Employee> searchEmployees(String nom, String prenom, String username) 
+            throws InvalideUsernameException {
 
         List<Employee> employees = new ArrayList<>();
         try {
             StringBuilder sql = new StringBuilder("SELECT * FROM utilisateur WHERE 1=1");
 
-            // Liste de paramètres dynamiques pour PreparedStatement
             List<Object> params = new ArrayList<>();
 
             if (nom != null) {
@@ -103,7 +103,6 @@ public class EmployeeDao {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement pst = con.prepareStatement(sql.toString());
 
-            // Affectation des paramètres dynamiques
             for (int i = 0; i < params.size(); i++) {
                 pst.setObject(i + 1, params.get(i));
             }
@@ -119,15 +118,19 @@ public class EmployeeDao {
                 String mdp = rs.getString("mdp");
                 String access = rs.getString("access");
 
-                // Construction de l'objet Employee
+                if (usernamee == null) {
+                    throw new InvalideUsernameException("Employee username not found in database");
+                }
+
                 Employee employee = new Employee(usernamee, nomm, prenomm, adresse, phone, mdp, access);
                 employees.add(employee);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return employees;
     }
+
 
     // Ajoute un nouvel employé dans la base de données
     public boolean addEmployee(String username, String nom, String prenom, String adresse, String phone, String mdp,

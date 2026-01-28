@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import dao.EmployeeDao;
+import exception.InvalideUsernameException;
 import model.Employee;
 
 /**
@@ -122,21 +123,35 @@ public class SearchEmployeePanel extends JPanel {
         }
         
         tableModel.setRowCount(0);
-        List<Employee> results = employeeDao.searchEmployees(nom, prenom, username);
-        
-        if (results.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No employees found matching the search criteria", "No Results", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            for (Employee e : results) {
-                tableModel.addRow(new Object[]{
-                    e.getUsername(),
-                    e.getNom(),
-                    e.getPrenom(),
-                    e.getPhone(),
-                    e.getAdresse(),
-                    e.getAccess()
-                });
+
+        try {
+            // Call searchEmployees, which may throw InvalideUsernameException
+            List<Employee> results = employeeDao.searchEmployees(nom, prenom, username);
+            
+            if (results.isEmpty()) {
+                // Optional: this may never happen if exception is thrown for missing username
+                JOptionPane.showMessageDialog(this, "No employees found matching the search criteria", "No Results", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                for (Employee e : results) {
+                    tableModel.addRow(new Object[]{
+                        e.getUsername(),
+                        e.getNom(),
+                        e.getPrenom(),
+                        e.getPhone(),
+                        e.getAdresse(),
+                        e.getAccess()
+                    });
+                }
             }
+
+        } catch (InvalideUsernameException ex) {
+            // Handle the custom exception
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Invalid Username", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            // Catch all other exceptions
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "An error occurred while searching employees", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 }

@@ -91,7 +91,9 @@ public class SalePanel extends JPanel {
 		//add to cart button
 		gbc.gridx = 2;
 		JButton addToCartBtn = new JButton("Add to Cart");
-		addToCartBtn.addActionListener(e -> handleAddToCart());
+		addToCartBtn.addActionListener(e -> {handleAddToCart();customerField.setEnabled(false);
+		
+		});
 		panel.add(addToCartBtn, gbc);
 
 		return panel;
@@ -414,6 +416,8 @@ public class SalePanel extends JPanel {
 
 		// Reset
 		resetSalePanel();
+		customerField.setEnabled(true
+				);
 	}
 
 	private void updateCartTotal() {

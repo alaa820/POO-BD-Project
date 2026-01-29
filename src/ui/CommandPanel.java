@@ -72,6 +72,7 @@ public class CommandPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
 
         int row = 0;
+        
 
         gbc.gridx = 0; gbc.gridy = row;
         panel.add(new JLabel("Supplier:"), gbc);
@@ -79,7 +80,16 @@ public class CommandPanel extends JPanel {
         fournisseurCombo = new JComboBox<>();
         fournisseurCombo.setPreferredSize(new Dimension(300,24));
         panel.add(fournisseurCombo, gbc);
-        fournisseurCombo.addActionListener(e -> onFournisseurSelected());
+        
+        fournisseurCombo.addActionListener(e -> {
+        fournisseurCombo.setEnabled(true);
+         if (fournisseurCombo.getSelectedIndex() >= 0) {
+             onFournisseurSelected();            // ta logique métier
+             fournisseurCombo.setEnabled(false); // désactive après la première sélection
+         }
+     });
+
+        
 
         gbc.gridx = 0; gbc.gridy = row;
         panel.add(new JLabel("Medicine:"), gbc);
@@ -276,6 +286,7 @@ public class CommandPanel extends JPanel {
         JOptionPane.showMessageDialog(this, "Order saved successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
         cartItems.clear();
         refreshCartTable();
+        fournisseurCombo.setEnabled(true);
     }
 
     // Getter for tests

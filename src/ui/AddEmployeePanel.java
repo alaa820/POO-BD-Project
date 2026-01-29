@@ -52,7 +52,7 @@ public class AddEmployeePanel extends JPanel {
 		addFormField(panel, gbc, row++, "Adresse:", adresseField = new JTextField(20));
 
 		JPanel accessPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		accessCombo = new JComboBox<>(new String[] { "admin", "employee", "manager" });
+		accessCombo = new JComboBox<>(new String[] { "admin", "employee" });
 		accessPanel.add(accessCombo);
 		addFormFieldPanel(panel, gbc, row++, "Access:", accessPanel);
 
